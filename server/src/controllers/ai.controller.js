@@ -1,9 +1,16 @@
-const { parseProjectDescription } = require('../services/gemini.service');
-const { generateEmbedding } = require('../services/embedding.service');
-const { searchHardware, searchMentors } = require('../services/vectorSearch.service');
-const { getMockHardwareMatches, getMockMentorMatches } = require('../utils/mockData');
-const { isGeminiConfigured } = require('../config/gemini');
-const ProjectRequest = require('../models/ProjectRequest');
+const { parseProjectDescription } = require("../services/gemini.service");
+const { generateEmbedding } = require("../services/embedding.service");
+const {
+  searchHardware,
+  searchMentors,
+} = require("../services/vectorSearch.service");
+const {
+  getMockHardwareMatches,
+  getMockMentorMatches,
+} = require("../utils/mockData");
+const { isGeminiConfigured } = require("../config/gemini");
+const ProjectRequest = require("../models/ProjectRequest");
+const User = require("../models/User");
 
 /**
  * POST /api/ai/parse-project
@@ -16,24 +23,25 @@ const parseProject = async (req, res, next) => {
     if (!raw_description || raw_description.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'raw_description is required',
+        error: "raw_description is required",
       });
     }
 
     const result = await parseProjectDescription(raw_description);
 
-    // Optionally save as a draft project
-    let project = null;
-    if (req.userId) {
-      project = await ProjectRequest.create({
-        title: result.title || 'Untitled Project',
-        raw_description,
-        user_id: req.userId,
-        extrapolated_BOM: result.extrapolated_BOM,
-        required_skills: result.required_skills,
-        status: 'parsed',
-      });
+    const user = await User.findOne({ firebaseUid: req.firebaseUid });
+    if (!user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
+
+    const project = await ProjectRequest.create({
+      title: result.title || "Untitled Project",
+      raw_description,
+      user_id: user._id,
+      extrapolated_BOM: result.extrapolated_BOM,
+      required_skills: result.required_skills,
+      status: "parsed",
+    });
 
     res.status(200).json({
       success: true,
@@ -58,7 +66,7 @@ const matchResources = async (req, res, next) => {
     if (!extrapolated_BOM && !required_skills) {
       return res.status(400).json({
         success: false,
-        error: 'extrapolated_BOM or required_skills is required',
+        error: "extrapolated_BOM or required_skills is required",
       });
     }
 
@@ -68,15 +76,19 @@ const matchResources = async (req, res, next) => {
     if (isGeminiConfigured()) {
       // Generate embeddings and search
       if (extrapolated_BOM && extrapolated_BOM.length > 0) {
-        const bomText = extrapolated_BOM.map((b) => b.hardware_name).join(', ');
+        const bomText = extrapolated_BOM.map((b) => b.hardware_name).join(", ");
         const bomEmbedding = await generateEmbedding(bomText);
-        matchedHardware = await searchHardware(bomEmbedding, { availability_status: 'available' });
+        matchedHardware = await searchHardware(bomEmbedding, {
+          availability_status: "available",
+        });
       }
 
       if (required_skills && required_skills.length > 0) {
-        const skillsText = required_skills.join(', ');
+        const skillsText = required_skills.join(", ");
         const skillsEmbedding = await generateEmbedding(skillsText);
-        matchedMentors = await searchMentors(skillsEmbedding, { availability: true });
+        matchedMentors = await searchMentors(skillsEmbedding, {
+          availability: true,
+        });
       }
     } else {
       // Mock responses

@@ -1,37 +1,26 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const initializeFirebaseAdmin = require("../config/firebaseAdmin");
 
-/**
- * Placeholder JWT auth middleware.
- * Extracts user from Bearer token if present.
- * In development, allows requests through with a mock user if no token.
- */
 const auth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // In development, attach a placeholder user ID for testing
-      if (process.env.NODE_ENV === 'development') {
-        req.userId = null; // No authenticated user
-        return next();
-      }
-      return res.status(401).json({ success: false, error: 'No token provided' });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    const token = authHeader.split(" ")[1];
+    const admin = initializeFirebaseAdmin();
+    const decoded = await admin.auth().verifyIdToken(token, true);
 
-    const user = await User.findById(decoded.id);
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'User not found' });
+    if (!decoded?.uid) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    req.userId = user._id;
-    req.user = user;
+    req.firebaseUid = decoded.uid;
+    req.firebaseToken = decoded;
     next();
   } catch (error) {
-    next(error);
+    return res.status(401).json({ success: false, error: "Unauthorized" });
   }
 };
 
