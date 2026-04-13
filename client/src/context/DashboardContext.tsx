@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { parseProject, matchResources } from '../api/client';
+import { createContext, useContext, useState } from "react";
+import type { FC, ReactNode } from "react";
+import { parseProject, matchResources } from "../api/client";
 
 export interface BOMItem {
   hardware_name: string;
@@ -40,8 +41,10 @@ interface DashboardState {
 
 const DashboardContext = createContext<DashboardState | undefined>(undefined);
 
-export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [projectPrompt, setProjectPrompt] = useState<string>('');
+export const DashboardProvider: FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [projectPrompt, setProjectPrompt] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
@@ -50,7 +53,7 @@ export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const submitPrompt = async () => {
     if (!projectPrompt.trim()) return;
-    
+
     setIsLoading(true);
     setHasLoaded(false);
     setAiResult(null);
@@ -64,20 +67,28 @@ export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children 
       setAiResult(result);
 
       // 2. Match Resources
-      if (result.extrapolated_BOM?.length > 0 || result.required_skills?.length > 0) {
-        const matchResponse = await matchResources(result.extrapolated_BOM, result.required_skills);
+      if (
+        result.extrapolated_BOM?.length > 0 ||
+        result.required_skills?.length > 0
+      ) {
+        const matchResponse = await matchResources(
+          result.extrapolated_BOM,
+          result.required_skills,
+        );
         setMatchedHardware(matchResponse.data.data.matched_hardware || []);
         setMatchedMentors(matchResponse.data.data.matched_mentors || []);
       }
       setHasLoaded(true);
     } catch (error) {
-      console.error('Error processing project prompt:', error);
+      console.error("Error processing project prompt:", error);
       // Fallback/Mock for UI display if backend fails during development
       setAiResult({
         title: "Mocked AI Response",
         description: "Your backend failed to respond. Simulated result loaded.",
-        extrapolated_BOM: [{ hardware_name: 'Raspberry Pi', quantity: 1, notes: 'Mock data' }],
-        required_skills: ['Python', 'Mocking']
+        extrapolated_BOM: [
+          { hardware_name: "Raspberry Pi", quantity: 1, notes: "Mock data" },
+        ],
+        required_skills: ["Python", "Mocking"],
       });
       setHasLoaded(true);
     } finally {
@@ -95,7 +106,7 @@ export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children 
         aiResult,
         matchedHardware,
         matchedMentors,
-        submitPrompt
+        submitPrompt,
       }}
     >
       {children}
@@ -106,7 +117,9 @@ export const DashboardProvider: React.FC<{ children: ReactNode }> = ({ children 
 export const useDashboardContext = () => {
   const context = useContext(DashboardContext);
   if (context === undefined) {
-    throw new Error('useDashboardContext must be used within a DashboardProvider');
+    throw new Error(
+      "useDashboardContext must be used within a DashboardProvider",
+    );
   }
   return context;
 };

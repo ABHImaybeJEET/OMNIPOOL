@@ -1,30 +1,30 @@
+@import url("https://api.fontshare.com/v2/css?f[]=clash-display@200,400,500,600,700&display=swap");
 @import "tailwindcss";
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,400,500,600,700&display=swap');
 
 /* ===== Custom Design System ===== */
 @theme {
   /* Replaced with Ivory/Lilac Core Theme */
-  --color-bg-primary: #F8F7F2;
-  --color-bg-secondary: #F0EBF5;
-  --color-bg-tertiary: #E8E2EC;
+  --color-bg-primary: #f8f7f2;
+  --color-bg-secondary: #f0ebf5;
+  --color-bg-tertiary: #e8e2ec;
   --color-bg-card: rgba(255, 255, 255, 0.6);
   --color-bg-glass: rgba(255, 255, 255, 0.4);
-  
+
   /* Landing Theme Colors (preserved for backward compat) */
-  --color-bg-ivory: #F8F7F2;
-  --color-text-dark: #1A1A1A;
-  --color-text-dark-muted: #4A4A4A;
-  --color-landing-primary: #8C7B9E;
-  --color-landing-secondary: #2D2D2D;
+  --color-bg-ivory: #f8f7f2;
+  --color-text-dark: #1a1a1a;
+  --color-text-dark-muted: #4a4a4a;
+  --color-landing-primary: #8c7b9e;
+  --color-landing-secondary: #2d2d2d;
 
   --color-text-primary: #111111;
   --color-text-secondary: #444444;
   --color-text-muted: #888888;
 
   /* Muted Pastel Accents */
-  --color-accent-indigo: #8C7B9E;
-  --color-accent-violet: #6A5A7B;
-  --color-accent-cyan: #A5A5C0;
+  --color-accent-indigo: #8c7b9e;
+  --color-accent-violet: #6a5a7b;
+  --color-accent-cyan: #a5a5c0;
   --color-accent-emerald: #84a59d;
   --color-accent-amber: #e0b171;
   --color-accent-rose: #e5989b;
@@ -33,13 +33,13 @@
   --color-border-hover: rgba(140, 123, 158, 0.4);
   --color-border-landing: rgba(0, 0, 0, 0.08);
 
-  --color-gradient-start: #8C7B9E;
-  --color-gradient-mid: #6A5A7B;
-  --color-gradient-end: #A5A5C0;
+  --color-gradient-start: #8c7b9e;
+  --color-gradient-mid: #6a5a7b;
+  --color-gradient-end: #a5a5c0;
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Clash Display', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Clash Display", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   --shadow-glow-sm: 0 0 15px rgba(140, 123, 158, 0.15);
   --shadow-glow-md: 0 0 30px rgba(140, 123, 158, 0.2);
@@ -90,12 +90,16 @@
   }
 
   .glass-card {
-    background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.4));
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.4)
+    );
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: var(--radius-lg);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -107,7 +111,12 @@
 
   /* ===== Gradient Text ===== */
   .gradient-text {
-    background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-mid), var(--color-gradient-end));
+    background: linear-gradient(
+      135deg,
+      var(--color-gradient-start),
+      var(--color-gradient-mid),
+      var(--color-gradient-end)
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -128,8 +137,12 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slideInLeft {
@@ -144,7 +157,8 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 15px rgba(140, 123, 158, 0.1);
     }
     50% {
@@ -162,13 +176,24 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   @keyframes counter-up {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .animate-fade-in-up {
@@ -192,28 +217,66 @@
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-bg-card) 50%, var(--color-bg-tertiary) 75%);
+    background: linear-gradient(
+      90deg,
+      var(--color-bg-tertiary) 25%,
+      var(--color-bg-card) 50%,
+      var(--color-bg-tertiary) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
   }
 
   /* Stagger animation delays */
-  .stagger-1 { animation-delay: 0.1s; opacity: 0; }
-  .stagger-2 { animation-delay: 0.2s; opacity: 0; }
-  .stagger-3 { animation-delay: 0.3s; opacity: 0; }
-  .stagger-4 { animation-delay: 0.4s; opacity: 0; }
-  .stagger-5 { animation-delay: 0.5s; opacity: 0; }
+  .stagger-1 {
+    animation-delay: 0.1s;
+    opacity: 0;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+    opacity: 0;
+  }
+  .stagger-3 {
+    animation-delay: 0.3s;
+    opacity: 0;
+  }
+  .stagger-4 {
+    animation-delay: 0.4s;
+    opacity: 0;
+  }
+  .stagger-5 {
+    animation-delay: 0.5s;
+    opacity: 0;
+  }
 
   /* ===== Gradient bg ===== */
   .bg-gradient-main {
-    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 50%, var(--color-bg-tertiary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-bg-primary) 0%,
+      var(--color-bg-secondary) 50%,
+      var(--color-bg-tertiary) 100%
+    );
   }
 
   .bg-gradient-hero {
-    background: radial-gradient(ellipse at 20% 50%, rgba(140, 123, 158, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(106, 90, 123, 0.04) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(165, 165, 192, 0.04) 0%, transparent 50%),
-                var(--color-bg-primary);
+    background:
+      radial-gradient(
+        ellipse at 20% 50%,
+        rgba(140, 123, 158, 0.06) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 80% 30%,
+        rgba(106, 90, 123, 0.04) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at 50% 80%,
+        rgba(165, 165, 192, 0.04) 0%,
+        transparent 50%
+      ),
+      var(--color-bg-primary);
   }
 
   /* Light grid texture — adds a subtle engineering blueprint feel */
@@ -226,7 +289,11 @@
 
   /* Dot grid variant */
   .bg-dot-texture {
-    background-image: radial-gradient(circle, rgba(140, 123, 158, 0.12) 1px, transparent 1px);
+    background-image: radial-gradient(
+      circle,
+      rgba(140, 123, 158, 0.12) 1px,
+      transparent 1px
+    );
     background-size: 24px 24px;
   }
 }
