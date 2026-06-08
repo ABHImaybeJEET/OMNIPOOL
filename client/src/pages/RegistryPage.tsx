@@ -379,48 +379,57 @@ const RegistryPage: React.FC = () => {
                 return (
                   <Card
                     key={item._id}
-                    className="group relative flex flex-col h-full overflow-hidden rounded-[2rem] border border-border-default/60 bg-white/70 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1 transition-all duration-300"
+                    className="group relative flex flex-col h-full overflow-hidden rounded-[1.75rem] border border-border-default/60 bg-white/75 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1.5 transition-all duration-300"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                      <div className="flex flex-wrap gap-1.5 text-[11px] font-bold">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20">
-                          {getCategoryIcon(item.category)}
-                          <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
-                        </span>
+                    {/* Row 1: Primary Category + Status */}
+                    <div className="flex items-center justify-between gap-3 mb-2.5">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20 text-[11px] font-bold">
+                        {getCategoryIcon(item.category)}
+                        <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
+                      </span>
+
+                      {/* Status Indicator Badge */}
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide border ${
+                        item.availability_status === 'available' || !item.availability_status
+                          ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
+                          : 'bg-accent-rose/10 text-accent-rose border-accent-rose/20'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          item.availability_status === 'available' || !item.availability_status
+                            ? 'bg-accent-emerald animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                            : 'bg-accent-rose'
+                        }`} />
+                        <span className="uppercase">{item.availability_status || 'Available'}</span>
+                      </span>
+                    </div>
+
+                    {/* Row 2: Brand & Condition Badges */}
+                    {(item.brand || item.condition) && (
+                      <div className="flex flex-wrap gap-1.5 mb-4 text-[10px] font-bold">
                         {item.brand && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary text-text-secondary border border-border-default font-medium">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-bg-secondary text-text-secondary border border-border-default/60 font-medium">
                             <Tag className="w-3 h-3 text-text-muted" />
                             <span>{item.brand}</span>
                           </span>
                         )}
                         {item.condition && (
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-wider ${
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md border uppercase tracking-wider ${
                             item.condition === 'new'
-                              ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
-                              : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20'
+                              ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/15'
+                              : 'bg-accent-amber/5 text-accent-amber border-accent-amber/15'
                           }`}>
                             {item.condition}
                           </span>
                         )}
                       </div>
+                    )}
 
-                      {/* Status Indicator */}
-                      <div className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald" />
-                        </span>
-                        <span className="text-[11px] font-bold text-text-muted capitalize">
-                          Available
-                        </span>
-                      </div>
-                    </div>
-
+                    {/* Title and Qty */}
                     <div className="flex justify-between items-start mb-2 gap-3">
                       <h3 className="text-lg font-bold text-text-primary leading-tight group-hover:text-accent-indigo transition-colors duration-200">
                         {item.name}
                       </h3>
-                      <span className="inline-flex items-center text-xs font-mono font-bold bg-bg-secondary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
+                      <span className="inline-flex items-center text-[11px] font-mono font-bold bg-bg-tertiary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
                         Qty: {item.quantity || 1}
                       </span>
                     </div>
@@ -440,6 +449,7 @@ const RegistryPage: React.FC = () => {
                       </p>
                     )}
 
+                    {/* Specs / Info Box */}
                     {specEntries.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5 mb-4">
                         {visibleSpecs.map(([key, value]) => (
@@ -458,20 +468,21 @@ const RegistryPage: React.FC = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="mb-4 text-xs text-accent-indigo bg-accent-indigo/5 border border-dashed border-accent-indigo/20 rounded-xl px-3 py-2.5 flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                        <span>Add technical specs to make this listing more useful.</span>
+                      <div className="mb-4 text-[11px] text-text-muted/80 bg-bg-primary/50 border border-border-default rounded-xl px-3 py-2.5 flex items-center gap-1.5">
+                        <Cpu className="w-3.5 h-3.5 text-accent-indigo/60 shrink-0" />
+                        <span>Standard hardware configuration</span>
                       </div>
                     )}
 
+                    {/* Footer */}
                     <div className="mt-auto pt-4 border-t border-border-default/50 flex justify-between items-center gap-3">
                       <div className="flex items-center gap-2 min-w-0">
                         <div
-                          className={`w-8 h-8 rounded-full bg-gradient-to-br ${
+                          className={`w-9 h-9 rounded-xl bg-gradient-to-br ${
                             item.owner_type === "enterprise"
                               ? "from-accent-indigo to-accent-violet"
                               : "from-accent-emerald to-accent-cyan"
-                          } flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0`}
+                          } flex items-center justify-center text-xs font-bold text-white shadow-sm border border-white/20 shrink-0`}
                         >
                           {getOwnerDisplayName(item).charAt(0).toUpperCase()}
                         </div>
@@ -489,7 +500,7 @@ const RegistryPage: React.FC = () => {
                           setSelectedHardware(item);
                           setIsRequestModalOpen(true);
                         }}
-                        className="text-xs px-4 py-2 rounded-xl bg-accent-indigo text-white hover:bg-accent-violet shadow-sm hover:shadow transition-all font-bold shrink-0 cursor-pointer"
+                        className="text-xs px-4.5 py-2 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-violet text-white hover:shadow-glow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-bold shrink-0 cursor-pointer"
                       >
                         Request
                       </button>
@@ -561,53 +572,58 @@ const RegistryPage: React.FC = () => {
                   const specEntries = getSortedSpecEntries(item.specs);
                   const visibleSpecs = specEntries.slice(0, 6);
 
-                  return (
-                    <Card
+                  return (                    <Card
                       key={item._id}
-                      className="group relative flex flex-col h-full overflow-hidden rounded-[2rem] border border-border-default/60 bg-white/70 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1 transition-all duration-300"
+                      className="group relative flex flex-col h-full overflow-hidden rounded-[1.75rem] border border-border-default/60 bg-white/75 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1.5 transition-all duration-300"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pr-24">
-                        <div className="flex flex-wrap gap-1.5 text-[11px] font-bold">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20">
-                            {getCategoryIcon(item.category)}
-                            <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
+                      {/* Row 1: Primary Category + Status */}
+                      <div className="flex items-center justify-between gap-3 mb-2.5 pr-24">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20 text-[11px] font-bold">
+                          {getCategoryIcon(item.category)}
+                          <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
+                        </span>
+
+                        {/* Status Indicator Badge */}
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide border ${
+                          item.availability_status === 'available' || !item.availability_status
+                            ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
+                            : item.availability_status === 'in-use'
+                              ? 'bg-accent-amber/10 text-accent-amber border-accent-amber/20'
+                              : 'bg-accent-rose/10 text-accent-rose border-accent-rose/20'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            item.availability_status === 'available' || !item.availability_status
+                              ? 'bg-accent-emerald animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                              : item.availability_status === 'in-use'
+                                ? 'bg-accent-amber'
+                                : 'bg-accent-rose'
+                          }`} />
+                          <span className="uppercase">
+                            {item.availability_status === 'available' ? 'Available' : item.availability_status === 'in-use' ? 'In Use' : item.availability_status || 'Available'}
                           </span>
+                        </span>
+                      </div>
+
+                      {/* Row 2: Brand & Condition Badges */}
+                      {(item.brand || item.condition) && (
+                        <div className="flex flex-wrap gap-1.5 mb-4 text-[10px] font-bold">
                           {item.brand && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary text-text-secondary border border-border-default font-medium">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-bg-secondary text-text-secondary border border-border-default/60 font-medium">
                               <Tag className="w-3 h-3 text-text-muted" />
                               <span>{item.brand}</span>
                             </span>
                           )}
                           {item.condition && (
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-wider ${
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md border uppercase tracking-wider ${
                               item.condition === 'new'
-                                ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
-                                : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20'
+                                ? 'bg-accent-emerald/5 text-accent-emerald border-accent-emerald/15'
+                                : 'bg-accent-amber/5 text-accent-amber border-accent-amber/15'
                             }`}>
                               {item.condition}
                             </span>
                           )}
                         </div>
-
-                        {/* Status Indicator */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="relative flex h-2 w-2">
-                            {item.availability_status === 'available' && (
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
-                            )}
-                            <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                              item.availability_status === 'available'
-                                ? 'bg-accent-emerald'
-                                : item.availability_status === 'in-use'
-                                  ? 'bg-accent-amber'
-                                  : 'bg-accent-rose'
-                            }`} />
-                          </span>
-                          <span className="text-[11px] font-bold text-text-muted capitalize">
-                            {item.availability_status === 'available' ? 'Available' : item.availability_status === 'in-use' ? 'In Use' : item.availability_status}
-                          </span>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Card Action Controls (absolute in top right on hover) */}
                       <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0 z-10">
@@ -634,11 +650,12 @@ const RegistryPage: React.FC = () => {
                         </button>
                       </div>
 
+                      {/* Title and Qty */}
                       <div className="flex justify-between items-start mb-2 gap-3">
                         <h3 className="text-lg font-bold text-text-primary leading-tight group-hover:text-accent-indigo transition-colors duration-200">
                           {item.name}
                         </h3>
-                        <span className="inline-flex items-center text-xs font-mono font-bold bg-bg-secondary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
+                        <span className="inline-flex items-center text-[11px] font-mono font-bold bg-bg-tertiary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
                           Qty: {item.quantity || 1}
                         </span>
                       </div>
@@ -658,6 +675,7 @@ const RegistryPage: React.FC = () => {
                         </p>
                       )}
 
+                      {/* Specs / Info Box */}
                       {specEntries.length > 0 ? (
                         <div className="flex flex-wrap gap-1.5 mb-4">
                           {visibleSpecs.map(([key, val]) => (
@@ -682,6 +700,7 @@ const RegistryPage: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Footer */}
                       <div className="mt-auto pt-4 border-t border-border-default/50 flex justify-between items-center gap-3">
                         <div className="text-xs text-text-muted">
                           {item.owner_type === "enterprise"
