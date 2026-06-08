@@ -13,6 +13,36 @@ import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import RobuInspiredHardwareForm from "../components/hardware/RobuInspiredHardwareForm";
 import RequestPartsModal from "../components/hardware/RequestPartsModal";
+import {
+  Cpu,
+  Tv,
+  Cable,
+  Settings,
+  Plug,
+  Wrench,
+  Boxes,
+  Layers,
+  Sparkles,
+  Edit2,
+  Trash2,
+  RefreshCw,
+  Tag,
+  Activity
+} from "lucide-react";
+
+// Category to Icon mapper helper
+const getCategoryIcon = (category: string) => {
+  const norm = category ? category.toLowerCase().trim() : '';
+  if (norm.includes('microcontroller') || norm.includes('board')) return <Cpu className="w-3.5 h-3.5" />;
+  if (norm.includes('sensor')) return <Activity className="w-3.5 h-3.5" />;
+  if (norm.includes('display')) return <Tv className="w-3.5 h-3.5" />;
+  if (norm.includes('cable') || norm.includes('connector')) return <Cable className="w-3.5 h-3.5" />;
+  if (norm.includes('power')) return <Plug className="w-3.5 h-3.5" />;
+  if (norm.includes('tool')) return <Wrench className="w-3.5 h-3.5" />;
+  if (norm.includes('passive') || norm.includes('active') || norm.includes('ic')) return <Layers className="w-3.5 h-3.5" />;
+  if (norm.includes('actuator')) return <Settings className="w-3.5 h-3.5" />;
+  return <Boxes className="w-3.5 h-3.5" />;
+};
 
 // --- SHARED DATA ---
 
@@ -347,35 +377,55 @@ const RegistryPage: React.FC = () => {
                 const visibleSpecs = specEntries.slice(0, 6);
 
                 return (
-                  <div
+                  <Card
                     key={item._id}
-                    className="glass-card p-6 flex flex-col h-full hover:shadow-glow-sm transition-all border border-border-default/50"
+                    className="group relative flex flex-col h-full overflow-hidden rounded-[2rem] border border-border-default/60 bg-white/70 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1 transition-all duration-300"
                   >
-                    <div className="flex justify-between items-start mb-3 gap-3">
-                      <span
-                        className={`text-[11px] uppercase tracking-wide px-2.5 py-1 rounded-full font-semibold ${
-                          item.owner_type === "enterprise"
-                            ? "bg-accent-indigo/10 text-accent-indigo"
-                            : "bg-accent-emerald/10 text-accent-emerald"
-                        }`}
-                      >
-                        {item.owner_type || "community"}
-                      </span>
-                      <span
-                        className={`text-[11px] px-2.5 py-1 rounded-full font-semibold ${
-                          (item.quantity || 1) < 5
-                            ? "bg-accent-amber/10 text-accent-amber"
-                            : "bg-bg-glass text-text-muted"
-                        }`}
-                      >
-                        Qty {item.quantity || 1}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                      <div className="flex flex-wrap gap-1.5 text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20">
+                          {getCategoryIcon(item.category)}
+                          <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
+                        </span>
+                        {item.brand && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary text-text-secondary border border-border-default font-medium">
+                            <Tag className="w-3 h-3 text-text-muted" />
+                            <span>{item.brand}</span>
+                          </span>
+                        )}
+                        {item.condition && (
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-wider ${
+                            item.condition === 'new'
+                              ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
+                              : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20'
+                          }`}>
+                            {item.condition}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Status Indicator */}
+                      <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-emerald" />
+                        </span>
+                        <span className="text-[11px] font-bold text-text-muted capitalize">
+                          Available
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-start mb-2 gap-3">
+                      <h3 className="text-lg font-bold text-text-primary leading-tight group-hover:text-accent-indigo transition-colors duration-200">
+                        {item.name}
+                      </h3>
+                      <span className="inline-flex items-center text-xs font-mono font-bold bg-bg-secondary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
+                        Qty: {item.quantity || 1}
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-semibold text-text-primary leading-tight mb-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-text-muted capitalize mb-3">
+                    <p className="text-xs text-text-muted capitalize mb-3">
                       {item.category.replace(/_/g, " ")}
                       {item.sub_category ? ` • ${item.sub_category}` : ""}
                     </p>
@@ -385,56 +435,53 @@ const RegistryPage: React.FC = () => {
                         {item.description}
                       </p>
                     ) : (
-                      <p className="text-sm text-text-muted italic mb-4">
-                        No description added yet.
+                      <p className="text-sm text-text-muted/60 italic mb-4">
+                        No description provided.
                       </p>
                     )}
 
                     {specEntries.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-1.5 mb-4">
                         {visibleSpecs.map(([key, value]) => (
                           <span
                             key={key}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary border border-border-default text-[11px] text-text-secondary"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-border-default/60 text-[10px] text-text-secondary hover:border-accent-indigo/30 transition-colors"
                           >
-                            <span className="text-text-muted">{key}:</span>
-                            <span className="font-semibold text-text-primary">
-                              {value}
-                            </span>
+                            <span className="text-text-muted uppercase tracking-wider text-[9px] font-bold">{key}:</span>
+                            <span className="font-bold text-text-primary">{value}</span>
                           </span>
                         ))}
                         {specEntries.length > 6 && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-bg-secondary border border-border-default text-[11px] text-text-muted">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-bg-secondary border border-border-default text-[10px] text-text-muted font-bold">
                             +{specEntries.length - 6} more
                           </span>
                         )}
                       </div>
                     ) : (
-                      <div className="mb-4 text-xs text-text-muted bg-bg-secondary/60 border border-dashed border-border-default rounded-xl px-3 py-2.5">
-                        No technical specifications provided yet.
+                      <div className="mb-4 text-xs text-accent-indigo bg-accent-indigo/5 border border-dashed border-accent-indigo/20 rounded-xl px-3 py-2.5 flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        <span>Add technical specs to make this listing more useful.</span>
                       </div>
                     )}
 
                     <div className="mt-auto pt-4 border-t border-border-default/50 flex justify-between items-center gap-3">
                       <div className="flex items-center gap-2 min-w-0">
                         <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                          className={`w-8 h-8 rounded-full bg-gradient-to-br ${
                             item.owner_type === "enterprise"
-                              ? "bg-accent-indigo text-white"
-                              : "bg-accent-emerald text-white"
-                          }`}
+                              ? "from-accent-indigo to-accent-violet"
+                              : "from-accent-emerald to-accent-cyan"
+                          } flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0`}
                         >
                           {getOwnerDisplayName(item).charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <span className="block text-sm text-text-secondary truncate">
+                          <span className="block text-sm font-semibold text-text-secondary truncate leading-tight">
                             {getOwnerDisplayName(item)}
                           </span>
-                          {item.owner_type === "enterprise" && (
-                            <span className="block text-[11px] text-accent-indigo truncate">
-                              Enterprise listing
-                            </span>
-                          )}
+                          <span className="block text-[10px] text-text-muted leading-tight mt-0.5">
+                            {item.owner_type === "enterprise" ? "Enterprise listing" : "Community listing"}
+                          </span>
                         </div>
                       </div>
                       <button
@@ -442,12 +489,12 @@ const RegistryPage: React.FC = () => {
                           setSelectedHardware(item);
                           setIsRequestModalOpen(true);
                         }}
-                        className="text-sm px-3 py-1.5 rounded-lg bg-bg-secondary hover:bg-accent-indigo/10 text-accent-indigo transition-colors font-medium shrink-0"
+                        className="text-xs px-4 py-2 rounded-xl bg-accent-indigo text-white hover:bg-accent-violet shadow-sm hover:shadow transition-all font-bold shrink-0 cursor-pointer"
                       >
                         Request
                       </button>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
 
@@ -517,153 +564,136 @@ const RegistryPage: React.FC = () => {
                   return (
                     <Card
                       key={item._id}
-                      className="hover:shadow-glow-sm transition-all group border border-border-default/50"
+                      className="group relative flex flex-col h-full overflow-hidden rounded-[2rem] border border-border-default/60 bg-white/70 backdrop-blur-md p-6 hover:shadow-glow-md hover:border-accent-indigo/40 hover:-translate-y-1 transition-all duration-300"
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-2 text-xs text-text-muted flex-wrap">
-                            <span className="bg-bg-secondary px-2 py-0.5 rounded capitalize">
-                              {item.category}
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pr-24">
+                        <div className="flex flex-wrap gap-1.5 text-[11px] font-bold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-indigo/10 text-accent-indigo border border-accent-indigo/20">
+                            {getCategoryIcon(item.category)}
+                            <span className="capitalize">{categoryFromApiToForm[item.category] || item.category.replace(/_/g, ' ')}</span>
+                          </span>
+                          {item.brand && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary text-text-secondary border border-border-default font-medium">
+                              <Tag className="w-3 h-3 text-text-muted" />
+                              <span>{item.brand}</span>
                             </span>
-                            {item.brand && (
-                              <span className="bg-bg-secondary px-2 py-0.5 rounded">
-                                {item.brand}
-                              </span>
-                            )}
-                            {item.condition && (
-                              <span className="bg-bg-secondary px-2 py-0.5 rounded capitalize">
-                                {item.condition}
-                              </span>
-                            )}
-                            <span className="bg-bg-secondary px-2 py-0.5 rounded">
-                              Qty: {item.quantity || 1}
+                          )}
+                          {item.condition && (
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-wider ${
+                              item.condition === 'new'
+                                ? 'bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20'
+                                : 'bg-accent-amber/10 text-accent-amber border-accent-amber/20'
+                            }`}>
+                              {item.condition}
                             </span>
-                          </div>
-                          <span
-                            className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                              item.availability_status === "available"
-                                ? "bg-accent-emerald"
-                                : item.availability_status === "in-use"
-                                  ? "bg-accent-amber"
-                                  : "bg-accent-rose"
-                            }`}
-                          />
+                          )}
                         </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => handleStartEdit(item)}
-                            className="p-1.5 rounded-lg text-text-muted hover:text-accent-emerald hover:bg-bg-glass transition-all"
-                            title="Edit hardware"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleToggleAvailability(item)}
-                            className="p-1.5 rounded-lg text-text-muted hover:text-accent-indigo hover:bg-bg-glass transition-all"
-                            title="Toggle availability"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item._id)}
-                            className="p-1.5 rounded-lg text-text-muted hover:text-accent-rose hover:bg-accent-rose/10 transition-all"
-                            title="Delete"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </button>
+
+                        {/* Status Indicator */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="relative flex h-2 w-2">
+                            {item.availability_status === 'available' && (
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-emerald opacity-75"></span>
+                            )}
+                            <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                              item.availability_status === 'available'
+                                ? 'bg-accent-emerald'
+                                : item.availability_status === 'in-use'
+                                  ? 'bg-accent-amber'
+                                  : 'bg-accent-rose'
+                            }`} />
+                          </span>
+                          <span className="text-[11px] font-bold text-text-muted capitalize">
+                            {item.availability_status === 'available' ? 'Available' : item.availability_status === 'in-use' ? 'In Use' : item.availability_status}
+                          </span>
                         </div>
                       </div>
 
-                      <h3 className="text-base font-semibold text-text-primary mb-1.5">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-text-muted mb-3 capitalize">
+                      {/* Card Action Controls (absolute in top right on hover) */}
+                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0 z-10">
+                        <button
+                          onClick={() => handleStartEdit(item)}
+                          className="p-2 rounded-full bg-white/90 hover:bg-accent-emerald hover:text-white text-text-muted border border-border-default shadow-sm hover:shadow transition-all cursor-pointer"
+                          title="Edit hardware"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleAvailability(item)}
+                          className="p-2 rounded-full bg-white/90 hover:bg-accent-indigo hover:text-white text-text-muted border border-border-default shadow-sm hover:shadow transition-all cursor-pointer"
+                          title="Toggle availability"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="p-2 rounded-full bg-white/90 hover:bg-accent-rose hover:text-white text-text-muted border border-border-default shadow-sm hover:shadow transition-all cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="flex justify-between items-start mb-2 gap-3">
+                        <h3 className="text-lg font-bold text-text-primary leading-tight group-hover:text-accent-indigo transition-colors duration-200">
+                          {item.name}
+                        </h3>
+                        <span className="inline-flex items-center text-xs font-mono font-bold bg-bg-secondary border border-border-default px-2.5 py-0.5 rounded-lg text-text-secondary shrink-0">
+                          Qty: {item.quantity || 1}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-text-muted capitalize mb-3">
                         {item.category.replace(/_/g, " ")}
                         {item.sub_category ? ` • ${item.sub_category}` : ""}
                       </p>
 
                       {item.description ? (
-                        <p className="text-sm text-text-secondary mb-3 line-clamp-3 leading-relaxed">
+                        <p className="text-sm text-text-secondary leading-relaxed line-clamp-3 mb-4">
                           {item.description}
                         </p>
                       ) : (
-                        <p className="text-sm text-text-muted italic mb-3">
-                          No description added yet.
+                        <p className="text-sm text-text-muted/60 italic mb-4">
+                          No description provided.
                         </p>
                       )}
 
-                      {specEntries.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
+                      {specEntries.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
                           {visibleSpecs.map(([key, val]) => (
                             <span
                               key={key}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-secondary border border-border-default text-[11px] text-text-secondary"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-border-default/60 text-[10px] text-text-secondary hover:border-accent-indigo/30 transition-colors"
                             >
-                              <span className="text-text-muted">{key}:</span>
-                              <span className="font-semibold text-text-primary">
-                                {val}
-                              </span>
+                              <span className="text-text-muted uppercase tracking-wider text-[9px] font-bold">{key}:</span>
+                              <span className="font-bold text-text-primary">{val}</span>
                             </span>
                           ))}
                           {specEntries.length > 6 && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-bg-secondary border border-border-default text-[11px] text-text-muted">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-bg-secondary border border-border-default text-[10px] text-text-muted font-bold">
                               +{specEntries.length - 6} more
                             </span>
                           )}
                         </div>
+                      ) : (
+                        <div className="mb-4 text-xs text-accent-indigo bg-accent-indigo/5 border border-dashed border-accent-indigo/20 rounded-xl px-3 py-2.5 flex items-center gap-2">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          <span>Add technical specs to make this listing more useful.</span>
+                        </div>
                       )}
 
-                      {specEntries.length === 0 ? (
-                        <div className="mb-3 text-xs text-text-muted bg-bg-secondary/60 border border-dashed border-border-default rounded-xl px-3 py-2.5">
-                          Add technical specs to make this listing more useful.
+                      <div className="mt-auto pt-4 border-t border-border-default/50 flex justify-between items-center gap-3">
+                        <div className="text-xs text-text-muted">
+                          {item.owner_type === "enterprise"
+                            ? item.owner_id &&
+                              typeof item.owner_id === "object" &&
+                              "company_name" in item.owner_id &&
+                              item.owner_id.company_name
+                              ? `Enterprise: ${item.owner_id.company_name}`
+                              : "Enterprise listing"
+                            : "Community listing"}
                         </div>
-                      ) : null}
-
-                      <p className="text-xs text-text-muted mb-0">
-                        {item.owner_type === "enterprise"
-                          ? item.owner_id &&
-                            typeof item.owner_id === "object" &&
-                            item.owner_id.company_name
-                            ? `Enterprise: ${item.owner_id.company_name}`
-                            : "Enterprise listing"
-                          : "Community listing"}
-                      </p>
+                      </div>
                     </Card>
                   );
                 })}

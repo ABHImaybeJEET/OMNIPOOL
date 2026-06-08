@@ -10,6 +10,8 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import SettingsPage from "./pages/SettingsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
       <Route path="/signup" element={<SignUpPage />} />
 
       <Route element={<Layout />}>
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/registry" element={<RegistryPage />} />

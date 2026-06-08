@@ -171,14 +171,13 @@ const DashboardContent = () => {
               Add specific hardware and software skills to get matched accurately with people who need your help.
             </p>
           </div>
-          
-          <div className="md:col-span-8 bg-bg-secondary border border-border-default rounded-3xl p-6 md:p-8 shadow-sm">
+          <div className="md:col-span-8 bg-bg-secondary border border-border-default rounded-3xl p-6 sm:p-8 shadow-sm">
             <h3 className="text-sm font-bold text-text-primary mb-4 flex justify-between items-center">
               Active Skills
               <span className="text-xs font-medium bg-bg-tertiary px-2.5 py-1 rounded-full text-text-secondary">{selectedSkills.length} selected</span>
             </h3>
             
-            <div className="mb-8 min-h-[60px]">
+            <div className="mb-6 min-h-[60px]">
               {selectedSkills.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {selectedSkills.map((skill, index) => (
@@ -191,7 +190,7 @@ const DashboardContent = () => {
                   ))}
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center border border-dashed border-border-default rounded-xl bg-bg-primary/50 text-sm text-text-muted py-6">
+                <div className="w-full flex items-center justify-center border border-dashed border-border-default rounded-2xl bg-bg-primary/50 text-sm text-text-muted py-6 text-center px-4 leading-relaxed">
                   No skills selected yet. Add some below!
                 </div>
               )}
@@ -207,27 +206,31 @@ const DashboardContent = () => {
                 icon={<Search className="w-4 h-4 text-text-muted" />}
               />
 
-              <div className="flex flex-wrap gap-2 mb-6 max-h-40 overflow-y-auto">
-                {filteredSkills.slice(0, 15).map((skill) => (
-                  <button
-                    key={skill}
-                    onClick={() => toggleSkill(skill)}
-                    className="px-3 py-1.5 rounded-lg text-sm font-medium border border-border-default bg-bg-primary text-text-secondary hover:border-accent-indigo/40 hover:text-accent-indigo hover:bg-accent-indigo/5 transition-all duration-200 cursor-pointer"
-                  >
-                    + {skill}
-                  </button>
-                ))}
+              <div className="bg-bg-primary/50 border border-border-default rounded-2xl p-4 mb-6">
+                <div className="flex flex-wrap gap-2.5 max-h-40 overflow-y-auto pr-3 custom-scrollbar">
+                  {filteredSkills.slice(0, 15).map((skill) => (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className="px-3.5 py-1.5 rounded-full text-sm font-medium border border-border-default bg-bg-primary text-text-secondary hover:border-accent-indigo/40 hover:text-accent-indigo hover:bg-accent-indigo/5 transition-all duration-200 cursor-pointer"
+                    >
+                      + {skill}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex gap-3 mt-4 pt-6 border-t border-border-default">
-                <Input
-                  className="bg-bg-primary"
-                  placeholder="Type custom skill & press enter..."
-                  value={customSkill}
-                  onChange={(e) => setCustomSkill(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
-                />
-                <Button variant="secondary" onClick={addCustomSkill} disabled={!customSkill.trim()}>Add</Button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border-default items-stretch sm:items-center">
+                <div className="flex-1">
+                  <Input
+                    className="bg-bg-primary"
+                    placeholder="Add custom skill..."
+                    value={customSkill}
+                    onChange={(e) => setCustomSkill(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+                  />
+                </div>
+                <Button variant="secondary" onClick={addCustomSkill} disabled={!customSkill.trim()} className="sm:w-auto w-full cursor-pointer h-[46px] flex items-center justify-center">Add</Button>
               </div>
             </div>
           </div>
