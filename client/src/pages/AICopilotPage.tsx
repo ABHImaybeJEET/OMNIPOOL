@@ -51,23 +51,23 @@ const DashboardContent = () => {
     <main className="flex-1 bg-bg-primary bg-grid-texture p-4 md:p-8 overflow-y-auto">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Top Center AI Input */}
-        <div className="relative max-w-2xl mx-auto mb-12">
+        <div className="relative max-w-2xl mx-auto mb-10 px-2 sm:px-4">
           <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-text-primary text-center mb-2">
-              Build your next masterpiece.
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-text-primary text-center tracking-tight mb-2">
+              Build your next <span className="gradient-text">masterpiece</span>.
             </h1>
-            <p className="text-text-muted text-center mb-6">
+            <p className="text-sm sm:text-base text-text-muted text-center max-w-lg mx-auto mb-6">
               Describe your hardware project, and OMNIPOOL will find the pieces.
             </p>
 
             <div className="relative group">
               <div className="absolute inset-0 bg-accent-indigo/10 blur-2xl group-focus-within:bg-accent-indigo/20 transition-all rounded-[2rem]" />
-              <div className="relative flex items-center bg-white border-2 border-border-default hover:border-accent-indigo/30 focus-within:border-accent-indigo p-2 rounded-[2rem] shadow-xl transition-all">
-                <Search className="w-6 h-6 text-text-muted ml-4" />
+              <div className="relative flex items-center bg-white border border-border-default/80 hover:border-accent-indigo/40 focus-within:border-accent-indigo p-1.5 rounded-[2rem] shadow-xl hover:shadow-glow-sm transition-all duration-300">
+                <Search className="w-5 h-5 text-text-muted ml-3 shrink-0" />
                 <input
                   type="text"
-                  placeholder="e.g. A weather station with OLED and ESP32..."
-                  className="flex-1 bg-transparent px-4 py-3 outline-none text-text-primary"
+                  placeholder="e.g. A weather station with OLED..."
+                  className="flex-1 min-w-0 bg-transparent px-3 py-2 outline-none text-text-primary text-sm sm:text-base placeholder-text-muted/60"
                   value={projectPrompt}
                   onChange={(e) => setProjectPrompt(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -75,25 +75,25 @@ const DashboardContent = () => {
                 <button
                   onClick={submitPrompt}
                   disabled={isLoading}
-                  className="bg-accent-indigo text-white px-6 py-3 rounded-full font-bold hover:bg-accent-indigo-dark transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="bg-accent-indigo text-white p-2.5 sm:px-5 sm:py-2.5 rounded-full font-bold hover:bg-accent-indigo-dark transition-all disabled:opacity-50 flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-sm hover:shadow"
                 >
                   {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className="w-4 h-4" />
                   )}
-                  Generate
+                  <span className="hidden sm:inline text-sm">Generate</span>
                 </button>
               </div>
-              <div className="flex justify-center mt-4 gap-6 text-[11px] text-text-muted uppercase tracking-widest font-bold">
-                <span className="flex items-center gap-1.5">
-                  <Cpu className="w-3 h-3" /> Hardware RAG
+              <div className="flex flex-wrap justify-center mt-5 gap-2.5 text-[10px] sm:text-[11px] text-text-muted uppercase tracking-widest font-bold">
+                <span className="flex items-center gap-1.5 bg-bg-secondary/50 border border-border-default/60 px-3.5 py-1.5 rounded-full shadow-sm hover:border-accent-indigo/35 hover:text-accent-indigo transition-all">
+                  <Cpu className="w-3.5 h-3.5 text-accent-indigo" /> Hardware RAG
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <Users className="w-3 h-3" /> Mentor Match
+                <span className="flex items-center gap-1.5 bg-bg-secondary/50 border border-border-default/60 px-3.5 py-1.5 rounded-full shadow-sm hover:border-accent-indigo/35 hover:text-accent-indigo transition-all">
+                  <Users className="w-3.5 h-3.5 text-accent-cyan" /> Mentor Match
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <Code2 className="w-3 h-3" /> Skill Analysis
+                <span className="flex items-center gap-1.5 bg-bg-secondary/50 border border-border-default/60 px-3.5 py-1.5 rounded-full shadow-sm hover:border-accent-indigo/35 hover:text-accent-indigo transition-all">
+                  <Code2 className="w-3.5 h-3.5 text-accent-emerald" /> Skill Analysis
                 </span>
               </div>
             </div>
