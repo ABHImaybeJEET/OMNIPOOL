@@ -6,6 +6,7 @@ import RegistryPage from "./pages/RegistryPage";
 import AICopilotPage from "./pages/AICopilotPage";
 import EnterprisePage from "./pages/EnterprisePage";
 import ChatPage from "./pages/ChatPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -25,6 +26,7 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/copilot" element={<AICopilotPage />} />
           <Route path="/enterprise" element={<EnterprisePage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>

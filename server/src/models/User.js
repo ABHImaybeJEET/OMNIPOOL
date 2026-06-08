@@ -99,6 +99,30 @@ const userSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    points_total: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    points_monthly: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    donated_items_count: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    donated_units_count: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    last_points_awarded_at: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -109,5 +133,7 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ location: "2dsphere" });
 // Text index for keyword search fallback
 userSchema.index({ name: "text", skills: "text", bio: "text" });
+userSchema.index({ account_type: 1, enterprise_status: 1, points_total: -1 });
+userSchema.index({ account_type: 1, enterprise_status: 1, points_monthly: -1 });
 
 module.exports = mongoose.model("User", userSchema);

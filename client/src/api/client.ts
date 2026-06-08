@@ -18,6 +18,27 @@ export interface AuthUser {
   company_name?: string;
   company_website?: string;
   gst_number?: string;
+  points_total?: number;
+  points_monthly?: number;
+  donated_items_count?: number;
+  donated_units_count?: number;
+}
+
+export type LeaderboardScope = "community" | "enterprise" | "all";
+export type LeaderboardPeriod = "all" | "monthly";
+
+export interface LeaderboardEntry {
+  rank: number;
+  user_id: string;
+  name: string;
+  company_name: string;
+  avatar_url: string;
+  account_type: AccountType;
+  enterprise_status: EnterpriseStatus;
+  points_total: number;
+  points_monthly: number;
+  donated_items_count: number;
+  donated_units_count: number;
 }
 
 const api = axios.create({
@@ -175,5 +196,16 @@ export const updateEnterpriseStatus = (
   id: string,
   status: Extract<EnterpriseStatus, "accepted" | "rejected">,
 ) => api.put(`/users/enterprise/${id}/status`, { status });
+
+export const getLeaderboard = (params?: {
+  scope?: LeaderboardScope;
+  period?: LeaderboardPeriod;
+  limit?: number;
+}) => api.get("/users/leaderboard", { params });
+
+export const getMyRank = (params?: {
+  scope?: LeaderboardScope;
+  period?: LeaderboardPeriod;
+}) => api.get("/users/me/rank", { params });
 
 export default api;
