@@ -432,7 +432,10 @@ const getLeaderboard = async (req, res, next) => {
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
     const sortField = getSortField(period);
 
-    const filter = getLeaderboardFilter(scope);
+    const filter = {
+      ...getLeaderboardFilter(scope),
+      [sortField]: { $gt: 0 },
+    };
 
     const users = await User.find(filter)
       .select(
@@ -519,6 +522,22 @@ const getMyRank = async (req, res, next) => {
     }
 
     const myPoints = me[sortField] || 0;
+    if (myPoints <= 0) {
+      return res.json({
+        success: true,
+        data: {
+          rank: null,
+          eligible: false,
+          scope,
+          period,
+          points_total: me.points_total || 0,
+          points_monthly: me.points_monthly || 0,
+          donated_items_count: me.donated_items_count || 0,
+          donated_units_count: me.donated_units_count || 0,
+        },
+      });
+    }
+
     const myUnits = me.donated_units_count || 0;
 
     const aheadCount = await User.countDocuments({
