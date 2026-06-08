@@ -452,7 +452,7 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
           <div className="space-y-2 mb-4">
             {Object.entries(formData.specs).map(([key, val]) => (
               <div key={key} className="flex gap-2 items-center">
-                <span className="text-sm text-text-secondary w-1/3 truncate bg-bg-tertiary px-3 py-2 rounded-lg border border-border-default">
+                <span className="text-sm text-text-secondary w-24 sm:w-32 md:w-40 shrink-0 truncate bg-bg-tertiary px-3 py-2 rounded-lg border border-border-default">
                   {key}
                 </span>
                 <input
@@ -460,12 +460,12 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
                   placeholder="Value..."
                   value={val}
                   onChange={(e) => handleUpdateSpec(key, e.target.value)}
-                  className="flex-1 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+                  className="flex-1 min-w-0 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveSpec(key)}
-                  className="p-2 text-text-muted hover:text-accent-rose transition-colors"
+                  className="p-2 text-text-muted hover:text-accent-rose transition-colors shrink-0"
                 >
                   <svg
                     className="w-4 h-4"
@@ -486,7 +486,7 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             placeholder="Spec key or 'Type: UNO'"
             value={specKey}
@@ -494,25 +494,27 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
             onKeyDown={(e) =>
               e.key === "Enter" && (e.preventDefault(), handleAddSpec())
             }
-            className="w-1/3 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+            className="w-full sm:w-1/3 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
           />
-          <input
-            placeholder="Value"
-            value={specValue}
-            onChange={(e) => setSpecValue(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && (e.preventDefault(), handleAddSpec())
-            }
-            className="flex-1 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleAddSpec}
-            className="px-4 py-2 h-auto text-sm"
-          >
-            Add
-          </Button>
+          <div className="flex gap-2 flex-1">
+            <input
+              placeholder="Value"
+              value={specValue}
+              onChange={(e) => setSpecValue(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && (e.preventDefault(), handleAddSpec())
+              }
+              className="flex-1 min-w-0 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddSpec}
+              className="px-4 py-2 h-auto text-sm shrink-0"
+            >
+              Add
+            </Button>
+          </div>
         </div>
         <p className="mt-2 text-xs text-text-muted">
           Tip: You can type "Type UNO" or "Type: UNO" in one field. Any pending

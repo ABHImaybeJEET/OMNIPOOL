@@ -283,7 +283,7 @@ const EnterprisePage: React.FC = () => {
               <motion.div
                 key={i}
                 variants={itemVariants as any}
-                className="glass border border-border-default rounded-2xl p-6 flex gap-5 hover:bg-bg-glass transition-colors h-36"
+                className="glass border border-border-default rounded-2xl p-6 flex gap-5 hover:bg-bg-glass transition-colors h-auto min-h-[9rem]"
               >
                 <div
                   className={`w-14 h-14 rounded-xl shrink-0 flex items-center justify-center text-2xl ${benefit.color}`}
