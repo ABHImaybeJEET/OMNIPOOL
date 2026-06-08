@@ -3,6 +3,30 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { generateAverageEmbedding } = require("../services/embedding.service");
 
+const VALID_LEADERBOARD_SCOPES = ["community", "enterprise", "all"];
+const VALID_LEADERBOARD_PERIODS = ["all", "monthly"];
+
+const getLeaderboardFilter = (scope) => {
+  if (scope === "community") {
+    return { account_type: "community" };
+  }
+
+  if (scope === "enterprise") {
+    return { account_type: "enterprise", enterprise_status: "accepted" };
+  }
+
+  return {};
+};
+
+const normalizeScope = (scope) =>
+  VALID_LEADERBOARD_SCOPES.includes(scope) ? scope : "all";
+
+const normalizePeriod = (period) =>
+  VALID_LEADERBOARD_PERIODS.includes(period) ? period : "all";
+
+const getSortField = (period) =>
+  period === "monthly" ? "points_monthly" : "points_total";
+
 const buildAuthUserResponse = (user, token) => ({
   _id: user._id,
   name: user.name,
@@ -17,6 +41,10 @@ const buildAuthUserResponse = (user, token) => ({
   company_name: user.company_name,
   company_website: user.company_website,
   gst_number: user.gst_number,
+  points_total: user.points_total || 0,
+  points_monthly: user.points_monthly || 0,
+  donated_items_count: user.donated_items_count || 0,
+  donated_units_count: user.donated_units_count || 0,
   token,
 });
 
@@ -255,10 +283,15 @@ const updateUser = async (req, res, next) => {
 
     // Handle 'self' as a special case for authenticated users
     let userId = req.params.id;
-    if (userId === 'self') {
+    if (userId === "self") {
       userId = req.userId || req.user?._id;
       if (!userId) {
-        return res.status(401).json({ success: false, error: 'Unauthorized: Cannot identify user' });
+        return res
+          .status(401)
+          .json({
+            success: false,
+            error: "Unauthorized: Cannot identify user",
+          });
       }
     }
 
@@ -389,6 +422,136 @@ const applyEnterprise = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/users/leaderboard
+ */
+const getLeaderboard = async (req, res, next) => {
+  try {
+    const scope = normalizeScope(req.query.scope);
+    const period = normalizePeriod(req.query.period);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+    const sortField = getSortField(period);
+
+    const filter = getLeaderboardFilter(scope);
+
+    const users = await User.find(filter)
+      .select(
+        "name email avatar_url company_name account_type enterprise_status points_total points_monthly donated_items_count donated_units_count createdAt",
+      )
+      .sort({
+        [sortField]: -1,
+        donated_units_count: -1,
+        createdAt: 1,
+      })
+      .limit(limit);
+
+    const data = users.map((user, index) => ({
+      rank: index + 1,
+      user_id: user._id,
+      name: user.name,
+      company_name: user.company_name || "",
+      avatar_url: user.avatar_url || "",
+      account_type: user.account_type,
+      enterprise_status: user.enterprise_status,
+      points_total: user.points_total || 0,
+      points_monthly: user.points_monthly || 0,
+      donated_items_count: user.donated_items_count || 0,
+      donated_units_count: user.donated_units_count || 0,
+    }));
+
+    res.json({
+      success: true,
+      data,
+      meta: { scope, period, sort_field: sortField, limit },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/users/me/rank
+ */
+const getMyRank = async (req, res, next) => {
+  try {
+    const scope = normalizeScope(req.query.scope);
+    const period = normalizePeriod(req.query.period);
+    const sortField = getSortField(period);
+    const filter = getLeaderboardFilter(scope);
+
+    const me = await User.findById(req.userId).select(
+      "name account_type enterprise_status points_total points_monthly donated_units_count donated_items_count createdAt",
+    );
+
+    if (!me) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    if (
+      scope === "enterprise" &&
+      !(me.account_type === "enterprise" && me.enterprise_status === "accepted")
+    ) {
+      return res.json({
+        success: true,
+        data: {
+          rank: null,
+          eligible: false,
+          scope,
+          period,
+          points_total: me.points_total || 0,
+          points_monthly: me.points_monthly || 0,
+        },
+      });
+    }
+
+    if (scope === "community" && me.account_type !== "community") {
+      return res.json({
+        success: true,
+        data: {
+          rank: null,
+          eligible: false,
+          scope,
+          period,
+          points_total: me.points_total || 0,
+          points_monthly: me.points_monthly || 0,
+        },
+      });
+    }
+
+    const myPoints = me[sortField] || 0;
+    const myUnits = me.donated_units_count || 0;
+
+    const aheadCount = await User.countDocuments({
+      ...filter,
+      $or: [
+        { [sortField]: { $gt: myPoints } },
+        { [sortField]: myPoints, donated_units_count: { $gt: myUnits } },
+        {
+          [sortField]: myPoints,
+          donated_units_count: myUnits,
+          createdAt: { $lt: me.createdAt },
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        rank: aheadCount + 1,
+        eligible: true,
+        scope,
+        period,
+        points_total: me.points_total || 0,
+        points_monthly: me.points_monthly || 0,
+        donated_items_count: me.donated_items_count || 0,
+        donated_units_count: me.donated_units_count || 0,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
@@ -400,4 +563,6 @@ module.exports = {
   applyEnterprise,
   getEnterpriseApplications,
   updateEnterpriseStatus,
+  getLeaderboard,
+  getMyRank,
 };

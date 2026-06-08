@@ -1,6 +1,7 @@
 const HardwareRequest = require("../models/HardwareRequest");
 const HardwareItem = require("../models/HardwareItem");
 const ChatMessage = require("../models/ChatMessage");
+const { awardCompletionPoints } = require("../services/points.service");
 
 /**
  * POST /api/requests
@@ -147,7 +148,7 @@ const updateRequest = async (req, res, next) => {
         .json({ success: false, error: "Invalid status update" });
     }
 
-    const request = await HardwareRequest.findById(req.params.id);
+    let request = await HardwareRequest.findById(req.params.id);
 
     if (!request) {
       return res
@@ -181,6 +182,7 @@ const updateRequest = async (req, res, next) => {
       }
     }
 
+    let pointsAwardResult = null;
     if (status === "completed") {
       if (request.status !== "accepted") {
         return res.status(400).json({
@@ -188,15 +190,37 @@ const updateRequest = async (req, res, next) => {
           error: "Only accepted requests can be completed",
         });
       }
-      
-      if (isOwner) {
-        request.owner_completed = true;
-      } else {
-        request.requester_completed = true;
+
+      const completionField = isOwner
+        ? "owner_completed"
+        : "requester_completed";
+      request = await HardwareRequest.findByIdAndUpdate(
+        request._id,
+        { $set: { [completionField]: true } },
+        { new: true },
+      );
+
+      if (!request) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Request not found" });
       }
 
       if (request.owner_completed && request.requester_completed) {
-        request.status = "completed";
+        const completedRequest = await HardwareRequest.findOneAndUpdate(
+          {
+            _id: request._id,
+            status: { $ne: "completed" },
+            owner_completed: true,
+            requester_completed: true,
+          },
+          { $set: { status: "completed" } },
+          { new: true },
+        );
+
+        if (completedRequest) {
+          request = completedRequest;
+        }
       }
     } else {
       // Reduce stock when request is accepted.
@@ -225,7 +249,15 @@ const updateRequest = async (req, res, next) => {
       request.status = status;
     }
 
+    const becameCompleted = request.status === "completed";
     await request.save();
+
+    if (becameCompleted) {
+      const hardware = await HardwareItem.findById(request.hardware_id).select(
+        "category condition owner_type",
+      );
+      pointsAwardResult = await awardCompletionPoints({ request, hardware });
+    }
 
     const populated = await HardwareRequest.findById(request._id)
       .populate("hardware_id", "name category image_url quantity")
@@ -240,7 +272,11 @@ const updateRequest = async (req, res, next) => {
       io.to(`user_${request.owner_id}`).emit("request_update", populated);
     }
 
-    res.json({ success: true, data: populated });
+    res.json({
+      success: true,
+      data: populated,
+      meta: pointsAwardResult ? { points_award: pointsAwardResult } : undefined,
+    });
   } catch (error) {
     next(error);
   }
