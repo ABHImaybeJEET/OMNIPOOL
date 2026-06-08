@@ -2,7 +2,35 @@ const ai = require('../config/genkit');
 const { z } = require('genkit');
 const { generateEmbedding } = require('./embedding.service');
 const { searchHardware, searchMentors } = require('./vectorSearch.service');
-const { isGeminiConfigured } = require('../config/gemini');
+const apiKeyRotator = require('../config/apiKeyRotator');
+
+/**
+ * Execute an AI operation with automatic API key rotation and retry logic.
+ */
+const runWithRotation = async (aiOperation) => {
+  let attempts = 0;
+  // Retry at least 2 times, or up to the number of configured keys
+  const maxAttempts = Math.max(2, apiKeyRotator.getKeyCount());
+  
+  while (attempts < maxAttempts) {
+    const currentKey = apiKeyRotator.getKey();
+    try {
+      // Temporarily sync to process.env in case any nested libraries pull from it directly
+      process.env.GEMINI_API_KEY = currentKey;
+      return await aiOperation();
+    } catch (error) {
+      console.warn(`⚠️ Gemini API request failed on attempt ${attempts + 1}/${maxAttempts}:`, error.message || error);
+      
+      // Mark current key as failed to trigger rotation
+      apiKeyRotator.markCurrentKeyFailed(currentKey, error);
+      
+      attempts++;
+      if (attempts >= maxAttempts) {
+        throw error;
+      }
+    }
+  }
+};
 
 /**
  * Define a Simple Retriever for Hardware Items
@@ -107,7 +135,7 @@ ${mentorContext}
 
 Provide a realistic strategy, difficulty assessment, and a feasibility score (0-100) based on resource availability.`;
 
-    try {
+    return runWithRotation(async () => {
       const { output } = await ai.generate({
         prompt: `Project Goal: ${rawDescription}`,
         system: systemPrompt,
@@ -124,10 +152,7 @@ Provide a realistic strategy, difficulty assessment, and a feasibility score (0-
 
       if (!output) throw new Error('AI generated null output');
       return output;
-    } catch (err) {
-      console.error('[Flow: projectAdvisor] AI Generation Failed:', err);
-      throw err;
-    }
+    });
   }
 );
 
@@ -137,7 +162,7 @@ Provide a realistic strategy, difficulty assessment, and a feasibility score (0-
 const parseProjectDescription = async (rawText) => {
   console.log(`[Service: parseProject] Parsing text: "${rawText.substring(0, 50)}..."`);
   
-  try {
+  return runWithRotation(async () => {
     const { output } = await ai.generate({
       prompt: `Analyze project: ${rawText}`,
       system: 'Parse project into structured JSON. Extract BOM and skills.',
@@ -157,10 +182,7 @@ const parseProjectDescription = async (rawText) => {
     
     if (!output) throw new Error('AI parsed null project');
     return output;
-  } catch (err) {
-    console.error('[Service: parseProject] Failed:', err);
-    throw err;
-  }
+  });
 };
 
 const generateProjectAdvice = async (rawDescription, matchedHardware, matchedMentors) => {
