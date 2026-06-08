@@ -1,14 +1,9 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
 import {
   DashboardProvider,
   useDashboardContext,
 } from "../context/DashboardContext";
 import {
-  LayoutDashboard,
-  FolderKanban,
-  Component,
-  Settings,
   Sparkles,
   Cpu,
   Code2,

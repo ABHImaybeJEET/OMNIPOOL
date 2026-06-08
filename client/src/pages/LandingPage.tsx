@@ -172,11 +172,11 @@ const MouseParallax = () => {
 
 const LandingNavbar = () => {
   return (
-    <nav className="absolute top-0 left-0 w-full z-50 px-10 py-8 flex items-center justify-between pointer-events-auto">
-      <div className="text-3xl font-bold tracking-tight text-[#1A1A1A]">
+    <nav className="absolute top-0 left-0 w-full z-50 px-6 py-6 md:px-10 md:py-8 flex items-center justify-between pointer-events-auto">
+      <div className="text-2xl md:text-3xl font-bold tracking-tight text-[#1A1A1A]">
         OmniPool
       </div>
-      <div className="flex items-center gap-8 text-[1.05rem] font-medium">
+      <div className="flex items-center gap-4 md:gap-8 text-[0.95rem] md:text-[1.05rem] font-medium">
         <Link
           to="/signin"
           className="text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
@@ -185,7 +185,7 @@ const LandingNavbar = () => {
         </Link>
         <Link
           to="/signup"
-          className="bg-[#8C7B9E] text-white px-7 py-3 rounded-2xl hover:bg-opacity-90 transition-all shadow-sm"
+          className="bg-[#8C7B9E] text-white px-4 py-2.5 sm:px-7 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-opacity-90 transition-all shadow-sm"
         >
           Sign Up
         </Link>
@@ -245,7 +245,7 @@ const FeaturesSection = () => {
         {/* Bento Box Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 relative z-20">
           {/* Large Hero Card - AI Matching */}
-          <div className="feature-card lg:col-span-3 relative rounded-[2.5rem] p-10 md:p-14 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500 flex flex-col justify-between min-h-[400px]">
+          <div className="feature-card lg:col-span-3 relative rounded-[2.5rem] p-6 sm:p-10 md:p-14 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500 flex flex-col justify-between min-h-[400px]">
             {/* 1px glowing gradient border effect via before element */}
             <div className="absolute inset-0 rounded-[2.5rem] p-[1px] bg-gradient-to-br from-white via-white/50 to-[#8C7B9E]/30 -z-10 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]"></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-[#8C7B9E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -261,7 +261,7 @@ const FeaturesSection = () => {
                   with the ideal hardware and talent in your vicinity.
                 </p>
               </div>
-              <div className="w-56 h-56 flex-shrink-0 relative group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-700 ease-out flex items-center justify-center">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-700 ease-out flex items-center justify-center">
                 <div className="absolute inset-0 bg-pink-400/20 blur-[50px] rounded-full mix-blend-multiply"></div>
                 <img
                   src="/3d-icons/brain.png"
@@ -276,7 +276,7 @@ const FeaturesSection = () => {
           {/* Right Column Stack */}
           <div className="lg:col-span-2 flex flex-col gap-6 h-full">
             {/* Top Small Card - Share Hardware */}
-            <div className="feature-card flex-1 relative rounded-[2rem] p-8 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500">
+            <div className="feature-card flex-1 relative rounded-[2rem] p-6 sm:p-8 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500">
               <div className="absolute inset-0 rounded-[2rem] p-[1px] bg-gradient-to-br from-white via-white/50 to-blue-300/30 -z-10 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
@@ -298,7 +298,7 @@ const FeaturesSection = () => {
             </div>
 
             {/* Bottom Small Card - Find Mentors */}
-            <div className="feature-card flex-1 relative rounded-[2rem] p-8 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500">
+            <div className="feature-card flex-1 relative rounded-[2rem] p-6 sm:p-8 overflow-hidden group bg-white/40 backdrop-blur-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(140,123,158,0.15)] transition-all duration-500">
               <div className="absolute inset-0 rounded-[2rem] p-[1px] bg-gradient-to-br from-white via-white/50 to-purple-300/30 -z-10 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-[#8C7B9E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
@@ -616,7 +616,7 @@ const LandingPage: React.FC = () => {
       <LandingNavbar />
 
       {/* FIXED 3D Background - stays behind everything during scroll */}
-      <div className="canvas-container fixed inset-0 z-0 pointer-events-none">
+      <div className="canvas-container hidden md:block fixed inset-0 z-0 pointer-events-none">
         <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
           <ambientLight intensity={1.5} />
           <directionalLight position={[5, 5, 5]} intensity={2.5} />
@@ -630,10 +630,10 @@ const LandingPage: React.FC = () => {
       <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center px-4 pointer-events-none">
         <div className="flex flex-col items-center text-center max-w-[900px] mt-12">
           {/* Headline */}
-          <h1 className="stagger-text text-[4.5rem] leading-[1.1] font-bold text-[#111] mb-6 tracking-tight pointer-events-auto">
+          <h1 className="stagger-text text-3xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] font-bold text-[#111] mb-6 tracking-tight pointer-events-auto">
             The Community{" "}
             <span
-              className="inline-block relative px-4 py-1 mx-1 rounded-[20px]"
+              className="inline-block relative px-3 py-0.5 sm:px-4 sm:py-1 mx-1 rounded-xl sm:rounded-[20px]"
               style={{ backgroundColor: "#E0D2EC" }}
             >
               Hardware
@@ -642,7 +642,7 @@ const LandingPage: React.FC = () => {
           </h1>
 
           {/* Sub-headline */}
-          <p className="stagger-text text-[1.35rem] text-[#333] max-w-3xl mx-auto mb-12 leading-[1.6] font-medium px-4 pointer-events-auto">
+          <p className="stagger-text text-base sm:text-lg md:text-[1.35rem] text-[#333] max-w-3xl mx-auto mb-8 md:mb-12 leading-[1.6] font-medium px-4 pointer-events-auto">
             Your platform to exchange expertise, access hardware, and build
             <br className="hidden md:block" />
             complex projects. Collaborate and grow with your community.

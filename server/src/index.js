@@ -8,9 +8,23 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const ChatMessage = require('./models/ChatMessage');
 const HardwareRequest = require('./models/HardwareRequest');
-
 const path = require('path');
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+const fs = require('fs');
+
+// Load environment variables in order of precedence:
+// 1. Existing process.env variables (e.g. injected by Render, Docker, etc.)
+// 2. server/.env (local server environment file)
+// 3. ../../.env (workspace root environment file)
+const serverEnvPath = path.join(__dirname, '../.env');
+const rootEnvPath = path.join(__dirname, '../../.env');
+
+if (fs.existsSync(serverEnvPath)) {
+  dotenv.config({ path: serverEnvPath });
+}
+if (fs.existsSync(rootEnvPath)) {
+  dotenv.config({ path: rootEnvPath });
+}
+dotenv.config(); // Fallback for standard .env in CWD
 
 const app = express();
 const server = http.createServer(app);
@@ -18,14 +32,38 @@ const server = http.createServer(app);
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// CORS Configuration
+const clientUrls = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((url) => url.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 const corsOptions = {
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, postman, curl)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = clientUrls.some((url) => url === origin || url.replace(/\/$/, '') === origin);
+    
+    if (isAllowed || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
+  optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Security & Configuration checks for production
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret') {
+    console.warn('⚠️  WARNING: JWT_SECRET is not set or using default value in production! Please set a secure JWT_SECRET in environment variables.');
+  }
+}
 
 // Socket.IO setup
 const io = new Server(server, {

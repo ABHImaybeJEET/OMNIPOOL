@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
 import useStore from "../store/useStore";
+import type { AppUser } from "../store/useStore";
 import { updateUser } from "../api/client";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import Input from "../components/ui/Input";
 import {
-  LayoutDashboard,
   Component,
   Settings,
   Sparkles,
@@ -83,9 +82,9 @@ const DashboardContent = () => {
     setError('');
     try {
       const response = await updateUser('self', { skills: selectedSkills, bio });
-      if (response.data?.success) {
+      if (response.data?.success && user) {
         // Update the store with new user data
-        const updatedUser = { ...user, skills: selectedSkills, bio };
+        const updatedUser: AppUser = { ...user, skills: selectedSkills, bio };
         setUser(updatedUser);
         setUserSkills(selectedSkills);
         setSaved(true);
@@ -104,16 +103,16 @@ const DashboardContent = () => {
       <div className="absolute top-0 inset-x-0 h-[400px] bg-gradient-to-b from-black/[0.03] to-transparent pointer-events-none" />
 
       {/* Header Banner */}
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 mb-16 relative">
-        <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-indigo to-accent-violet flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-accent-indigo/20">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 mb-12 md:mb-16 relative">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-indigo to-accent-violet flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-accent-indigo/20 shrink-0">
             {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
           </div>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-text-primary mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary mb-2">
               Welcome back, {user?.name?.split(' ')[0] || "User"}
             </h1>
-            <p className="text-text-secondary text-lg">
+            <p className="text-text-secondary text-base sm:text-lg">
               Manage your personal settings, skills, and platform preferences.
             </p>
           </div>

@@ -12,7 +12,7 @@ import {
   updateRequestStatus,
 } from "../api/client";
 import { connectSocket, joinChat, sendMessage } from "../api/socket";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ArrowLeft } from "lucide-react";
 
 const ChatPage: React.FC = () => {
   const { user, conversations, setConversations } = useStore();
@@ -30,6 +30,7 @@ const ChatPage: React.FC = () => {
     | { type: "delete"; title: string; message: string }
     | null
   >(null);
+  const [showMobileChat, setShowMobileChat] = useState(false);
   const location = useLocation();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -79,6 +80,7 @@ const ChatPage: React.FC = () => {
     const reqId = params.get("request_id");
     if (reqId) {
       setActiveConversationId(reqId);
+      setShowMobileChat(true);
     }
   }, [location]);
 
@@ -508,13 +510,13 @@ const ChatPage: React.FC = () => {
     : null;
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 sm:px-8 flex flex-col bg-bg-primary relative">
+    <div className="min-h-screen pt-20 md:pt-24 pb-4 md:pb-12 px-0 md:px-4 sm:px-8 flex flex-col bg-bg-primary relative">
       {/* Background decoration */}
       <div className="absolute top-0 inset-x-0 h-[400px] bg-gradient-to-b from-black/[0.02] to-transparent pointer-events-none z-0" />
       
-      <div className="relative z-10 flex-1 flex max-w-[1400px] mx-auto w-full border border-border-default/50 rounded-3xl overflow-hidden shadow-2xl shadow-black/[0.03] bg-bg-primary h-[calc(100vh-140px)]">
+      <div className="relative z-10 flex-1 flex max-w-[1400px] mx-auto w-full border-x-0 border-y md:border border-border-default/50 md:rounded-3xl overflow-hidden shadow-2xl shadow-black/[0.03] bg-bg-primary h-[calc(100vh-120px)] md:h-[calc(100vh-140px)]">
         {/* Left Sidebar: Conversations List */}
-        <div className="w-1/3 min-w-[320px] max-w-[400px] border-r border-border-default/50 bg-[#fafafa] flex flex-col">
+        <div className={`w-full md:w-1/3 md:min-w-[320px] md:max-w-[400px] border-r border-border-default/50 bg-[#fafafa] flex flex-col ${showMobileChat ? "hidden md:flex" : "flex"}`}>
           <div className="h-[80px] px-6 border-b border-border-default/50 bg-white/40 backdrop-blur-md z-10 flex flex-col justify-center shrink-0">
             <h2 className="text-xl font-bold tracking-tight text-text-primary">Inboxes</h2>
             <p className="text-xs font-medium text-text-muted mt-0.5">Manage hardware requests</p>
@@ -547,7 +549,10 @@ const ChatPage: React.FC = () => {
                 return (
                   <button
                     key={conv._id}
-                    onClick={() => setActiveConversationId(conv._id)}
+                    onClick={() => {
+                      setActiveConversationId(conv._id);
+                      setShowMobileChat(true);
+                    }}
                     className={`w-full text-left mx-3 my-1.5 p-3 rounded-2xl transition-all duration-200 flex items-center justify-between group ${
                       activeConversationId === conv._id
                         ? "bg-white shadow-sm border border-border-default/40"
@@ -581,13 +586,21 @@ const ChatPage: React.FC = () => {
         </div>
 
         {/* Right Area: Chat Window */}
-        <div className="flex-1 flex flex-col bg-bg-primary relative overflow-hidden">
+        <div className={`w-full flex-1 flex flex-col bg-bg-primary relative overflow-hidden ${showMobileChat ? "flex" : "hidden md:flex"}`}>
           {activeConversationId && currentConversation ? (
             <>
               {/* Chat Header */}
-              <div className="h-[80px] border-b border-border-default/50 px-8 flex justify-between items-center bg-white/70 backdrop-blur-xl shrink-0 z-20 absolute top-0 inset-x-0">
-                <div className="flex items-center gap-4">
-                  <div className="w-[42px] h-[42px] rounded-xl bg-gradient-to-br from-text-secondary to-text-primary text-white flex items-center justify-center font-bold shadow-sm">
+              <div className="h-[80px] border-b border-border-default/50 px-4 md:px-8 flex justify-between items-center bg-white/70 backdrop-blur-xl shrink-0 z-20 absolute top-0 inset-x-0">
+                <div className="flex items-center gap-2 md:gap-4 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileChat(false)}
+                    className="md:hidden p-1.5 -ml-1 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition-colors shrink-0"
+                    aria-label="Back to inboxes"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-[40px] h-[40px] md:w-[42px] md:h-[42px] rounded-xl bg-gradient-to-br from-text-secondary to-text-primary text-white flex items-center justify-center font-bold shadow-sm shrink-0">
                     {otherUser &&
                     typeof otherUser === "object" &&
                     "name" in otherUser &&
@@ -595,7 +608,7 @@ const ChatPage: React.FC = () => {
                       ? otherUser.name.charAt(0).toUpperCase()
                       : "?"}
                   </div>
-                  <div className="flex flex-col justify-center">
+                  <div className="flex flex-col justify-center min-w-0">
                     <h3 className="font-bold tracking-tight text-text-primary truncate text-[15px] leading-tight">
                       {otherUser &&
                       typeof otherUser === "object" &&
@@ -614,9 +627,9 @@ const ChatPage: React.FC = () => {
                   </div>
                 </div>
                 {/* Status & Actions Container */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4 shrink-0">
                   <span
-                    className={`text-[10px] px-3 py-1.5 rounded-lg font-bold tracking-widest uppercase font-mono border ${
+                    className={`text-[9px] md:text-[10px] px-2 py-1 md:px-3 md:py-1.5 rounded-lg font-bold tracking-widest uppercase font-mono border ${
                       currentConversation.status === "accepted"
                         ? "bg-accent-emerald/10 text-accent-emerald border-accent-emerald/20"
                         : currentConversation.status === "rejected"
@@ -631,78 +644,6 @@ const ChatPage: React.FC = () => {
                     )}
                   </span>
                   <div className="flex items-center gap-2">
-                    {isCurrentUserOwner &&
-                    currentConversation.status === "pending" ? (
-                      <>
-                        <Button
-                          type="button"
-                          size="lg"
-                          onClick={() => handleStatusUpdate("accepted")}
-                          isLoading={isUpdatingStatus}
-                          className="min-w-32"
-                        >
-                          Accept Request
-                        </Button>
-                        <Button
-                          type="button"
-                          size="lg"
-                          variant="danger"
-                          onClick={() => handleStatusUpdate("rejected")}
-                          isLoading={isUpdatingStatus}
-                          className="min-w-32"
-                        >
-                          Reject Request
-                        </Button>
-                      </>
-                    ) : null}
-
-                    {isCurrentUserParticipant &&
-                    currentConversation.status === "accepted" ? (
-                      (() => {
-                        const hasCurrentConfirmed = isCurrentUserOwner
-                          ? currentConversation.owner_completed
-                          : currentConversation.requester_completed;
-
-                        const hasPartnerConfirmed = isCurrentUserOwner
-                          ? currentConversation.requester_completed
-                          : currentConversation.owner_completed;
-
-                        if (hasCurrentConfirmed) {
-                          return (
-                            <Button
-                              type="button"
-                              size="lg"
-                              variant="secondary"
-                              disabled
-                              className="min-w-36 opacity-70 cursor-not-allowed border border-border-default bg-bg-secondary"
-                            >
-                              Waiting for partner...
-                            </Button>
-                          );
-                        }
-
-                        return (
-                          <Button
-                            type="button"
-                            size="lg"
-                            variant="secondary"
-                            onClick={() => handleStatusUpdate("completed")}
-                            isLoading={isUpdatingStatus}
-                            className="min-w-36 relative"
-                          >
-                            {hasPartnerConfirmed ? (
-                              <>
-                                <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-accent-emerald text-white rounded-full flex items-center justify-center animate-pulse shadow-sm"></span>
-                                Confirm Completion
-                              </>
-                            ) : (
-                              "Mark Completed"
-                            )}
-                          </Button>
-                        );
-                      })()
-                    ) : null}
-
                     <div className="relative" ref={chatActionsRef}>
                       <button
                         type="button"
@@ -730,7 +671,7 @@ const ChatPage: React.FC = () => {
                             type="button"
                             onClick={() => {
                               if (currentConversation.status === "accepted") {
-                                return;
+                                  return;
                               }
                               setIsChatActionsOpen(false);
                               handleDeleteChat();
@@ -752,10 +693,89 @@ const ChatPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Action Banner (just under header) */}
+              {((isCurrentUserOwner && currentConversation.status === "pending") ||
+                (isCurrentUserParticipant && currentConversation.status === "accepted")) && (
+                <div className="h-[50px] border-b border-border-default/50 px-4 md:px-8 flex justify-between items-center bg-bg-secondary/95 backdrop-blur-md shrink-0 z-20 absolute top-[80px] inset-x-0">
+                  <span className="text-xs font-semibold text-text-secondary truncate pr-2">
+                    {currentConversation.status === "pending"
+                      ? "Review request status"
+                      : isCurrentUserOwner
+                        ? currentConversation.requester_completed
+                          ? "Partner marked completed"
+                          : "Mark when handover is done"
+                        : currentConversation.owner_completed
+                          ? "Partner marked completed"
+                          : "Mark when equipment is received"}
+                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {currentConversation.status === "pending" ? (
+                      <>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleStatusUpdate("accepted")}
+                          isLoading={isUpdatingStatus}
+                          className="px-2.5 py-1 md:px-3 md:py-1.5 h-auto text-xs"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="danger"
+                          onClick={() => handleStatusUpdate("rejected")}
+                          isLoading={isUpdatingStatus}
+                          className="px-2.5 py-1 md:px-3 md:py-1.5 h-auto text-xs"
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    ) : (
+                      (() => {
+                        const hasCurrentConfirmed = isCurrentUserOwner
+                          ? currentConversation.owner_completed
+                          : currentConversation.requester_completed;
+
+                        const hasPartnerConfirmed = isCurrentUserOwner
+                          ? currentConversation.requester_completed
+                          : currentConversation.owner_completed;
+
+                        if (hasCurrentConfirmed) {
+                          return (
+                            <span className="text-[11px] text-text-muted font-medium">
+                              Waiting for partner...
+                            </span>
+                          );
+                        }
+
+                        return (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => handleStatusUpdate("completed")}
+                            isLoading={isUpdatingStatus}
+                            className="px-2.5 py-1 md:px-3 md:py-1.5 h-auto text-xs font-semibold"
+                          >
+                            {hasPartnerConfirmed ? "Confirm" : "Mark Complete"}
+                          </Button>
+                        );
+                      })()
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Messages Area */}
               <div
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto px-8 pt-[116px] pb-6 space-y-6 bg-bg-primary relative"
+                className={`flex-1 overflow-y-auto px-4 md:px-8 pb-[100px] space-y-6 bg-bg-primary relative ${
+                  ((isCurrentUserOwner && currentConversation.status === "pending") ||
+                  (isCurrentUserParticipant && currentConversation.status === "accepted"))
+                    ? "pt-[136px] md:pt-[146px]"
+                    : "pt-[96px] md:pt-[116px]"
+                }`}
               >
                 {/* Subtle grid in background just for chat area */}
                 <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.03] pointer-events-none -z-10" />
@@ -785,7 +805,7 @@ const ChatPage: React.FC = () => {
                         className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] px-5 py-3.5 text-[15px] leading-relaxed relative shadow-sm ${
+                          className={`max-w-[85%] md:max-w-[70%] px-5 py-3.5 text-[15px] leading-relaxed relative shadow-sm ${
                             isMe
                               ? "bg-gradient-to-br from-accent-indigo to-accent-indigo/90 text-white rounded-2xl rounded-tr-sm"
                               : "bg-white border border-border-default/50 text-text-primary rounded-2xl rounded-tl-sm shadow-[0_2px_12px_rgba(0,0,0,0.02)]"
@@ -809,22 +829,22 @@ const ChatPage: React.FC = () => {
               </div>
 
               {/* Message Input */}
-              <div className="px-8 py-6 bg-white/70 backdrop-blur-xl shrink-0 absolute bottom-0 inset-x-0 border-t border-border-default/50 z-20">
+              <div className="px-4 md:px-8 py-4 md:py-6 bg-white/70 backdrop-blur-xl shrink-0 absolute bottom-0 inset-x-0 border-t border-border-default/50 z-20">
                 <form
                   onSubmit={handleSend}
-                  className="flex gap-3 bg-bg-primary p-2 rounded-2xl border border-border-default/60 shadow-sm focus-within:border-accent-indigo/40 focus-within:ring-2 focus-within:ring-accent-indigo/10 transition-all"
+                  className="flex gap-2 md:gap-3 bg-bg-primary p-1.5 md:p-2 rounded-2xl border border-border-default/60 shadow-sm focus-within:border-accent-indigo/40 focus-within:ring-2 focus-within:ring-accent-indigo/10 transition-all"
                 >
                   <input
                     type="text"
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent px-4 py-2 text-text-primary placeholder-text-muted focus:outline-none"
+                    className="flex-1 bg-transparent px-3 py-1.5 md:px-4 md:py-2 text-text-primary placeholder-text-muted focus:outline-none text-sm md:text-base"
                   />
                   <button
                     type="submit"
                     disabled={!messageInput.trim()}
-                    className="bg-accent-indigo hover:bg-accent-violet disabled:opacity-40 disabled:hover:bg-accent-indigo text-white rounded-xl px-6 py-2.5 font-semibold transition-all flex items-center justify-center gap-2 shadow-sm"
+                    className="bg-accent-indigo hover:bg-accent-violet disabled:opacity-40 disabled:hover:bg-accent-indigo text-white rounded-xl px-4 py-2 md:px-6 md:py-2.5 font-semibold transition-all flex items-center justify-center gap-2 shadow-sm text-sm md:text-base shrink-0"
                   >
                     Send
                   </button>
