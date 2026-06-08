@@ -117,11 +117,11 @@ const projectAdvisorFlow = ai.defineFlow(
     console.log(`[Flow: projectAdvisor] Context: ${matchedHardware.length} HW, ${matchedMentors.length} Mentors`);
 
     const hardwareContext = matchedHardware.length > 0 
-      ? matchedHardware.map(h => `- ${h.name} (Owned by: ${h.owner_id?.name || 'Community'})`).join('\n')
+      ? matchedHardware.map(h => `- ${h.name || 'Unknown'} (Owned by: ${h.owner_id?.name || 'Community'})`).join('\n')
       : 'No hardware matches found in community.';
 
     const mentorContext = matchedMentors.length > 0
-      ? matchedMentors.map(m => `- ${m.name} (Skills: ${m.skills.join(', ')})`).join('\n')
+      ? matchedMentors.map(m => `- ${m.name || 'Unknown'} (Skills: ${Array.isArray(m.skills) ? m.skills.join(', ') : 'None'})`).join('\n')
       : 'No mentor matches found in community.';
 
     const systemPrompt = `You are a Senior Technical Project Advisor at OmniPool.
