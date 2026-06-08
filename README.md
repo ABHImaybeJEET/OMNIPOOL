@@ -67,6 +67,17 @@ By leveraging **Retrieval-Augmented Generation (RAG)**, the AI acts as a project
 5. **Robust Identity & Security**
    - End-to-end authentication managed visually by Firebase Auth on the client and continuously verified via Firebase Admin SDK on the Express backend.
 
+6. **Persistent AI Conversations (Copilot Sidebar)**
+   - Saves project prompts, generated BOM lists, strategy outlines, and steps directly to the backend.
+   - Features a clean, ChatGPT-like conversation sidebar allowing users to switch threads, trigger "New Project" starts, and load previous chats seamlessly.
+
+7. **Interactive Leaderboard Glimpse**
+   - Dynamic, unified preview of the top 3 contributors from both Community and Enterprise divisions on the landing page with sliding toggles.
+   - Automatically ranks and styles contributors using styled medals and dynamic scoring metadata.
+
+8. **Automatic Scroll Restoration**
+   - Embedded route listeners that ensure transitioning pages (like Privacy Policy or Terms of Service) automatically reset the window scroll to the top.
+
 ---
 
 ## 🏗️ Architecture & Tech Stack
@@ -219,6 +230,8 @@ To allow rapid UI development without burning through API quotas or requiring an
 |---|---|---|---|
 | `/api/ai/parse-project` | `POST` | *Public* | Generates semantic BOM from text via Gemini |
 | `/api/ai/match-resources` | `POST` | *Public* | Triggers Atlas Vector Query against community DB |
+| `/api/ai/conversations` | `GET/POST` | *Auth Required* | Fetch past AI Copilot chats / Save current conversation |
+| `/api/ai/conversations/:id` | `GET` | *Auth Required* | Fetch a specific past AI Copilot conversation |
 | `/api/users/profile` | `GET/PUT` | *Auth Required* | Fetch/Update Firebase-verified identity |
 | `/api/hardware` | `GET/POST` | *Auth Required* | View global registry / Delegate personal hardware |
 | `/api/hardware/:id` | `PUT/DEL` | *Auth Required* | Edit/Delete a hardware item |

@@ -559,7 +559,6 @@ const FAQSection = () => {
 const LeaderboardPreviewSection = () => {
   const [communityTop3, setCommunityTop3] = useState<LeaderboardEntry[]>([]);
   const [enterpriseTop3, setEnterpriseTop3] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"enterprise" | "community">("enterprise");
 
   useEffect(() => {
@@ -579,8 +578,6 @@ const LeaderboardPreviewSection = () => {
         }
       } catch (err) {
         console.error("Failed to fetch landing page leaderboard top 3", err);
-      } finally {
-        if (active) setLoading(false);
       }
     };
     fetchTop3();
