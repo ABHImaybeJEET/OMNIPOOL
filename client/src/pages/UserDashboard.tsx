@@ -9,7 +9,8 @@ import {
   Component,
   Settings,
   Sparkles,
-  Search
+  Search,
+  Trophy
 } from "lucide-react";
 
 
@@ -154,6 +155,70 @@ const DashboardContent = () => {
               <p className={`text-base font-semibold capitalize relative z-10 ${user?.enterprise_status === "accepted" ? "text-accent-emerald" : "text-text-primary"}`}>
                 {user?.enterprise_status || "Standard"}
               </p>
+            </div>
+          </div>
+        </section>
+
+        <hr className="border-border-default" />
+
+        {/* Section: Points & Contributions */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
+          <div className="md:col-span-4">
+            <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-accent-amber" />
+              Points & Reputation
+            </h2>
+            <p className="text-sm text-text-secondary mt-2">
+              Track your contribution stats, points, and items shared with the community.
+            </p>
+          </div>
+          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Points */}
+            <div className="bg-gradient-to-br from-accent-indigo/5 via-accent-violet/5 to-transparent border border-border-default rounded-2xl p-5 shadow-sm hover:border-accent-indigo/30 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-accent-indigo/10 to-transparent rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform duration-300" />
+              <div className="flex items-start justify-between relative z-10">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-text-muted font-bold mb-1">Total Points</p>
+                  <p className="text-2xl font-extrabold text-accent-indigo">{user?.points_total || 0}</p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-accent-indigo/10 flex items-center justify-center text-accent-indigo">
+                  <Trophy className="w-4 h-4" />
+                </div>
+              </div>
+              <p className="text-xs text-text-secondary mt-3 relative z-10">Lifetime community contributions.</p>
+            </div>
+
+            {/* Monthly Points */}
+            <div className="bg-gradient-to-br from-accent-amber/5 via-accent-violet/5 to-transparent border border-border-default rounded-2xl p-5 shadow-sm hover:border-accent-amber/30 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-accent-amber/10 to-transparent rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform duration-300" />
+              <div className="flex items-start justify-between relative z-10">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-text-muted font-bold mb-1">Monthly Points</p>
+                  <p className="text-2xl font-extrabold text-accent-amber">{user?.points_monthly || 0}</p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-accent-amber/10 flex items-center justify-center text-accent-amber">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+              </div>
+              <p className="text-xs text-text-secondary mt-3 relative z-10">Points accumulated this month.</p>
+            </div>
+
+            {/* Donated Items (listings) */}
+            <div className="bg-bg-secondary border border-border-default rounded-2xl p-5 shadow-sm hover:border-accent-indigo/20 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-text-muted font-bold mb-1">Items Shared</p>
+                <p className="text-2xl font-extrabold text-text-primary">{user?.donated_items_count || 0}</p>
+              </div>
+              <p className="text-xs text-text-secondary mt-3">Completed donation listings.</p>
+            </div>
+
+            {/* Donated Units (quantity) */}
+            <div className="bg-bg-secondary border border-border-default rounded-2xl p-5 shadow-sm hover:border-accent-indigo/20 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-text-muted font-bold mb-1">Units Donated</p>
+                <p className="text-2xl font-extrabold text-text-primary">{user?.donated_units_count || 0}</p>
+              </div>
+              <p className="text-xs text-text-secondary mt-3">Total physical units gifted.</p>
             </div>
           </div>
         </section>
