@@ -4,6 +4,8 @@ const { generateEmbedding } = require('./embedding.service');
 const { searchHardware, searchMentors } = require('./vectorSearch.service');
 const apiKeyRotator = require('../config/apiKeyRotator');
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
  * Execute an AI operation with automatic API key rotation and retry logic.
  */
@@ -28,6 +30,11 @@ const runWithRotation = async (aiOperation) => {
       if (attempts >= maxAttempts) {
         throw error;
       }
+
+      // Add a backoff delay before retrying (1.5s, 3s, etc.)
+      const waitTime = attempts * 1500;
+      console.log(`Waiting ${waitTime}ms before retry attempt ${attempts + 1}/${maxAttempts}...`);
+      await delay(waitTime);
     }
   }
 };

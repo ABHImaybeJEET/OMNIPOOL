@@ -1,6 +1,8 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const apiKeyRotator = require('../config/apiKeyRotator');
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
  * Generate a 768-dimensional embedding vector for the given text.
  * Uses Gemini's gemini-embedding-2 model.
@@ -44,6 +46,11 @@ const generateEmbedding = async (text) => {
         console.error('Embedding generation completely failed after all attempts:', error.message);
         return new Array(768).fill(0);
       }
+
+      // Add a backoff delay before retrying (1.5s, 3s, etc.)
+      const waitTime = attempts * 1500;
+      console.log(`Waiting ${waitTime}ms before retry attempt ${attempts + 1}/${maxAttempts}...`);
+      await delay(waitTime);
     }
   }
 };
