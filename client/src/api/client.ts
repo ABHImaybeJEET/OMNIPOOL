@@ -100,6 +100,21 @@ export const getAdvice = (
     matched_mentors,
   });
 
+export const createAiConversation = (data: {
+  title?: string;
+  prompt: string;
+  aiResult?: unknown;
+  projectAdvice?: unknown;
+}) => api.post("/ai/conversations", data);
+
+export const getAiConversations = () => api.get("/ai/conversations");
+
+export const getAiConversationById = (id: string) =>
+  api.get(`/ai/conversations/${id}`);
+
+export const deleteAiConversation = (id: string) =>
+  api.delete(`/ai/conversations/${id}`);
+
 // ===== User Endpoints =====
 export const registerUser = (data: {
   name: string;

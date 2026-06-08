@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   DashboardProvider,
   useDashboardContext,
@@ -10,10 +10,13 @@ import {
   Users,
   Search,
   Loader2,
+  MessageSquare,
+  Trash2,
+  Plus,
+  Menu,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-
 
 // --- SKELETON LOADER ---
 const BentoSkeleton = () => (
@@ -27,8 +30,102 @@ const BentoSkeleton = () => (
   </div>
 );
 
+// --- SIDEBAR HISTORY PANEL ---
+const SidebarPanel = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const { conversations, currentConversationId, loadConversation, deleteConversation, startNewChat } = useDashboardContext();
+
+  return (
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar Drawer Container */}
+      <aside
+        className={`fixed left-0 w-72 bg-bg-secondary border-r border-border-default/80 flex flex-col transition-transform duration-300 shrink-0 ${
+          isOpen 
+            ? "translate-x-0 z-50 top-0 bottom-0 h-screen" 
+            : "-translate-x-full z-30 top-16 bottom-0 h-[calc(100vh-64px)] md:translate-x-0"
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-border-default/60 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent-indigo shrink-0" />
+            <h2 className="font-extrabold text-sm text-text-primary uppercase tracking-wider">Project History</h2>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-bg-tertiary text-text-muted md:hidden cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* New Chat Button */}
+        <div className="p-4">
+          <button
+            onClick={() => {
+              startNewChat();
+              onClose();
+            }}
+            className="w-full py-2.5 px-4 rounded-xl border border-border-default hover:border-accent-indigo bg-white hover:bg-bg-secondary text-text-primary text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-all"
+          >
+            <Plus className="w-4 h-4 text-accent-indigo" />
+            New Project
+          </button>
+        </div>
+
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto px-2 pb-4 space-y-1.5 custom-scrollbar">
+          {conversations.length === 0 ? (
+            <div className="text-center py-8 px-4">
+              <MessageSquare className="w-8 h-8 text-text-muted/40 mx-auto mb-2" />
+              <p className="text-xs text-text-muted">No recent projects. Start a new one to see history here.</p>
+            </div>
+          ) : (
+            conversations.map((convo) => {
+              const isActive = currentConversationId === convo._id;
+              return (
+                <div
+                  key={convo._id}
+                  className={`group relative flex items-center justify-between rounded-xl p-3 text-sm transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-[#E8E2EC] border-l-4 border-accent-indigo text-text-primary font-bold shadow-xs"
+                      : "hover:bg-bg-tertiary/75 text-text-secondary"
+                  }`}
+                  onClick={() => {
+                    loadConversation(convo._id);
+                    onClose();
+                  }}
+                >
+                  <div className="flex items-center gap-3 min-w-0 pr-6">
+                    <MessageSquare className={`w-4 h-4 shrink-0 ${isActive ? "text-accent-indigo" : "text-text-muted"}`} />
+                    <span className="truncate pr-1 text-xs sm:text-sm">{convo.title}</span>
+                  </div>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteConversation(convo._id);
+                    }}
+                    className="absolute right-2 opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg hover:bg-bg-tertiary hover:text-accent-rose text-text-muted transition-opacity cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </aside>
+    </>
+  );
+};
+
 // --- MAIN DASHBOARD CONTENT ---
-const DashboardContent = () => {
+const DashboardContent = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
   const {
     projectPrompt,
     setProjectPrompt,
@@ -53,13 +150,29 @@ const DashboardContent = () => {
         {/* Top Center AI Input */}
         <div className="relative max-w-2xl mx-auto mb-10 px-2 sm:px-4">
           <div className="flex flex-col gap-2">
+            
+            {/* Mobile Sidebar Toggle Button */}
+            <div className="flex justify-between items-center md:hidden mb-4 border-b border-border-default/45 pb-3">
+              <button
+                onClick={onOpenSidebar}
+                className="py-2 px-3.5 rounded-xl border border-border-default bg-white text-text-primary flex items-center gap-1.5 text-xs font-bold shadow-xs cursor-pointer hover:bg-bg-secondary transition-all"
+              >
+                <Menu className="w-4 h-4 text-accent-indigo" />
+                History
+              </button>
+              <div className="text-xs font-black tracking-wider uppercase text-accent-indigo flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                Copilot
+              </div>
+            </div>
+
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-text-primary text-center tracking-tight mb-2">
               Build your next <span className="gradient-text">masterpiece</span>.
             </h1>
             <p className="text-sm sm:text-base text-text-muted text-center max-w-lg mx-auto mb-6">
               Describe your hardware project, and OMNIPOOL will find the pieces.
             </p>
-
+ 
             <div className="relative group">
               <div className="absolute inset-0 bg-accent-indigo/10 blur-2xl group-focus-within:bg-accent-indigo/20 transition-all rounded-[2rem]" />
               <div className="relative flex items-center bg-white border border-border-default/80 hover:border-accent-indigo/40 focus-within:border-accent-indigo p-1.5 rounded-[2rem] shadow-xl hover:shadow-glow-sm transition-all duration-300">
@@ -99,7 +212,7 @@ const DashboardContent = () => {
             </div>
           </div>
         </div>
-
+ 
         {/* Bento Grid layout */}
         {(isLoading || hasLoaded) && (
           <div className="space-y-6">
@@ -114,7 +227,7 @@ const DashboardContent = () => {
                   <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Sparkles className="w-32 h-32 rotate-12" />
                   </div>
-
+ 
                   <div className="flex flex-col md:flex-row gap-8 relative z-10">
                     <div className="flex-1">
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-widest mb-4">
@@ -130,12 +243,12 @@ const DashboardContent = () => {
                           <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
                         </div>
                       ) : (
-                        <p className="text-white/90 leading-relaxed max-w-2xl">
+                        <p className="text-white/90 leading-relaxed max-w-2xl text-sm sm:text-base">
                           {projectAdvice?.strategy}
                         </p>
                       )}
                     </div>
-
+ 
                     <div className="flex flex-col sm:flex-row md:flex-col gap-4 min-w-[200px]">
                       <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
                         <p className="text-white/60 text-xs uppercase font-bold mb-1">
@@ -156,7 +269,7 @@ const DashboardContent = () => {
                           </span>
                         </div>
                       </div>
-
+ 
                       <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
                         <p className="text-white/60 text-xs uppercase font-bold mb-1">
                           Difficulty
@@ -167,7 +280,7 @@ const DashboardContent = () => {
                       </div>
                     </div>
                   </div>
-
+ 
                   {!isLoading && projectAdvice?.next_steps && (
                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {projectAdvice.next_steps.map((step, i) => (
@@ -175,10 +288,10 @@ const DashboardContent = () => {
                           key={i}
                           className="bg-white/5 hover:bg-white/10 transition-colors p-4 rounded-xl border border-white/10 flex gap-3 items-center"
                         >
-                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+                          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">
                             {i + 1}
                           </div>
-                          <span className="text-sm">{step}</span>
+                          <span className="text-xs sm:text-sm">{step}</span>
                         </div>
                       ))}
                     </div>
@@ -186,7 +299,7 @@ const DashboardContent = () => {
                 </motion.article>
               )}
             </AnimatePresence>
-
+ 
             <section
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
               aria-live="polite"
@@ -235,7 +348,7 @@ const DashboardContent = () => {
                     </ul>
                   )}
                 </motion.article>
-
+ 
                 {/* 2. Required Technical Skills */}
                 <motion.article
                   key="skills-card"
@@ -273,7 +386,7 @@ const DashboardContent = () => {
                     </div>
                   )}
                 </motion.article>
-
+ 
                 {/* 3. Matched Local Hardware */}
                 <motion.article
                   key="hardware-card"
@@ -304,7 +417,7 @@ const DashboardContent = () => {
                             <span className="text-sm font-medium text-text-primary truncate">
                               {hw.name}
                             </span>
-                            <span className="text-xs text-accent-emerald mt-1">
+                            <span className="text-xs text-accent-emerald mt-1 font-semibold">
                               {hw.status}
                             </span>
                           </div>
@@ -318,7 +431,7 @@ const DashboardContent = () => {
                     </div>
                   )}
                 </motion.article>
-
+ 
                 {/* 4. Matched Mentors */}
                 <motion.article
                   key="mentors-card"
@@ -346,11 +459,11 @@ const DashboardContent = () => {
                             key={idx}
                             className="flex items-center gap-3 bg-bg-secondary/60 p-3.5 rounded-xl border border-border-default/50"
                           >
-                            <div className="w-9 h-9 rounded-full bg-accent-indigo/10 flex items-center justify-center text-xs font-bold text-accent-indigo">
+                            <div className="w-9 h-9 rounded-full bg-accent-indigo/10 flex items-center justify-center text-xs font-bold text-accent-indigo shrink-0 font-mono">
                               {mentor.name.charAt(0)}
                             </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-text-primary">
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-medium text-text-primary truncate">
                                 {mentor.name}
                               </span>
                               <span className="text-xs text-text-muted truncate">
@@ -378,10 +491,13 @@ const DashboardContent = () => {
 
 // --- ROOT PAGE COMPONENT ---
 const AICopilotPage: React.FC = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <DashboardProvider>
-      <div className="flex min-h-[calc(100vh-64px)] bg-bg-primary font-sans">
-        <DashboardContent />
+      <div className="flex min-h-[calc(100vh-64px)] bg-bg-primary font-sans overflow-hidden md:pl-72">
+        <SidebarPanel isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <DashboardContent onOpenSidebar={() => setIsSidebarOpen(true)} />
       </div>
     </DashboardProvider>
   );

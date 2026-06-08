@@ -130,4 +130,119 @@ const getAdvice = async (req, res, next) => {
   }
 };
 
-module.exports = { parseProject, matchResources, getAdvice };
+const AiConversation = require('../models/AiConversation');
+
+/**
+ * POST /api/ai/conversations
+ * Save a new conversation record.
+ */
+const createConversation = async (req, res, next) => {
+  try {
+    const { title, prompt, aiResult, projectAdvice } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'prompt is required',
+      });
+    }
+
+    const conversation = await AiConversation.create({
+      user_id: req.userId,
+      title: title || aiResult?.title || prompt.substring(0, 50) + '...',
+      prompt,
+      aiResult,
+      projectAdvice,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: conversation,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/ai/conversations
+ * Get all conversations for active user.
+ */
+const getConversations = async (req, res, next) => {
+  try {
+    const conversations = await AiConversation.find({ user_id: req.userId })
+      .select('title prompt createdAt updatedAt')
+      .sort({ updatedAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: conversations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/ai/conversations/:id
+ * Get single conversation details.
+ */
+const getConversationById = async (req, res, next) => {
+  try {
+    const conversation = await AiConversation.findOne({
+      _id: req.params.id,
+      user_id: req.userId,
+    });
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Conversation not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: conversation,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * DELETE /api/ai/conversations/:id
+ * Delete a conversation.
+ */
+const deleteConversation = async (req, res, next) => {
+  try {
+    const conversation = await AiConversation.findOneAndDelete({
+      _id: req.params.id,
+      user_id: req.userId,
+    });
+
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Conversation not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Conversation deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  parseProject,
+  matchResources,
+  getAdvice,
+  createConversation,
+  getConversations,
+  getConversationById,
+  deleteConversation,
+};
