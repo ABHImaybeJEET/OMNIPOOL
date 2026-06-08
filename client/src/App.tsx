@@ -13,11 +13,14 @@ import SettingsPage from "./pages/SettingsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ScrollToTop from "./components/layout/ScrollToTop";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
       <Route path="/signin" element={<SignInPage />} />
       <Route path="/signup" element={<SignUpPage />} />
 
@@ -35,6 +38,7 @@ function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   );
 }
 
