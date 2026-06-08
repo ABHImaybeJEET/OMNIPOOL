@@ -22,6 +22,10 @@ export interface AppUser {
   company_name?: string;
   company_website?: string;
   gst_number?: string;
+  points_total?: number;
+  points_monthly?: number;
+  donated_items_count?: number;
+  donated_units_count?: number;
 }
 
 export interface EnterpriseApplication {

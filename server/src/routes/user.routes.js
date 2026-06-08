@@ -11,6 +11,8 @@ const {
   applyEnterprise,
   getEnterpriseApplications,
   updateEnterpriseStatus,
+  getLeaderboard,
+  getMyRank,
 } = require("../controllers/user.controller");
 const auth = require("../middleware/auth");
 
@@ -19,6 +21,8 @@ router.route("/").get(getUsers).post(createUser);
 router.post("/login", loginUser);
 router.post("/google", googleAuth);
 router.post("/sync", syncUser);
+router.get("/leaderboard", getLeaderboard);
+router.get("/me/rank", auth, getMyRank);
 
 // Admin Enterprise Routes
 router.get("/enterprise/applications", auth, getEnterpriseApplications);
