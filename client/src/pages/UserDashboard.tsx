@@ -32,6 +32,7 @@ const badgeVariants = ['indigo', 'violet', 'cyan', 'emerald', 'amber', 'rose'] a
 const DashboardContent = () => {
   const user = useStore((state) => state.user);
   const setUser = useStore((state) => state.setUser);
+  const refreshUser = useStore((state) => state.refreshUser);
   const { userSkills, setUserSkills } = useStore();
   const [selectedSkills, setSelectedSkills] = useState<string[]>(userSkills);
   const [customSkill, setCustomSkill] = useState('');
@@ -51,6 +52,11 @@ const DashboardContent = () => {
       setBio(user.bio);
     }
   }, [user?._id]); // Re-initialize when user changes
+
+  // Fetch latest user details on mount to sync points and other stats
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const filteredSkills = POPULAR_SKILLS.filter(
     (skill) =>
@@ -85,7 +91,7 @@ const DashboardContent = () => {
       const response = await updateUser('self', { skills: selectedSkills, bio });
       if (response.data?.success && user) {
         // Update the store with new user data
-        const updatedUser: AppUser = { ...user, skills: selectedSkills, bio };
+        const updatedUser: AppUser = { ...user, ...response.data.data };
         setUser(updatedUser);
         setUserSkills(selectedSkills);
         setSaved(true);

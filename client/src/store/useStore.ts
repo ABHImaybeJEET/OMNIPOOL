@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   getEnterpriseApplications as fetchEnterpriseApplications,
   updateEnterpriseStatus as setEnterpriseStatus,
+  getUserById,
 } from "../api/client";
 
 export type UserRole = "viewer" | "admin";
@@ -188,6 +189,7 @@ interface AppState {
   // User skills
   userSkills: string[];
   setUserSkills: (skills: string[]) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const getInitialUser = () => {
@@ -199,7 +201,7 @@ const getInitialUser = () => {
   }
 };
 
-const useStore = create<AppState>((set) => ({
+const useStore = create<AppState>((set, get) => ({
   // Auth
   user: getInitialUser(),
   setUser: (user) => {
@@ -268,6 +270,21 @@ const useStore = create<AppState>((set) => ({
   // Skills
   userSkills: [],
   setUserSkills: (skills) => set({ userSkills: skills }),
+
+  // Refresh user data
+  refreshUser: async () => {
+    const user = get().user;
+    if (user?._id) {
+      try {
+        const { data } = await getUserById(user._id);
+        if (data?.success && data?.data) {
+          get().setUser({ ...user, ...data.data });
+        }
+      } catch (error) {
+        console.error("Error refreshing user data:", error);
+      }
+    }
+  },
 }));
 
 export default useStore;

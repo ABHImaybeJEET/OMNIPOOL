@@ -15,7 +15,7 @@ import { connectSocket, joinChat, sendMessage } from "../api/socket";
 import { MoreHorizontal, ArrowLeft } from "lucide-react";
 
 const ChatPage: React.FC = () => {
-  const { user, conversations, setConversations } = useStore();
+  const { user, conversations, setConversations, refreshUser } = useStore();
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null);
@@ -205,6 +205,9 @@ const ChatPage: React.FC = () => {
             : c,
         ),
       );
+      if (updatedRequest.status === "completed") {
+        refreshUser();
+      }
     };
 
     const handleNewRequest = (newRequest: ChatConversation) => {
@@ -267,7 +270,7 @@ const ChatPage: React.FC = () => {
       socket.off("conversation_deleted", handleConversationDeleted);
       socket.off("chat_cleared", handleChatCleared);
     };
-  }, [activeConversationId, user]);
+  }, [activeConversationId, user, refreshUser]);
 
   const fetchConversations = async () => {
     try {
@@ -381,6 +384,9 @@ const ChatPage: React.FC = () => {
       );
       setConversations(updatedConversations);
       fetchMessages(updatedConversation._id);
+      if (status === "completed" || updatedConversation.status === "completed") {
+        refreshUser();
+      }
     } catch (e) {
       console.error("Failed to update request status", e);
     } finally {
