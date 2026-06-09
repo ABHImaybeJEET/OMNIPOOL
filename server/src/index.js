@@ -134,6 +134,11 @@ app.use('/api/projects', require('./routes/project.routes'));
 app.use('/api/requests', require('./routes/request.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
 
+// Root endpoint for cron-job / ping checks
+app.get('/', (req, res) => {
+  res.status(200).send('OmniPool API is running.');
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
