@@ -69,6 +69,8 @@ const SignUpPage: React.FC = () => {
         {
           to_name: targetName,
           to_email: targetEmail,
+          email: targetEmail,
+          recipient_email: targetEmail,
           otp_code: otp,
         },
         {
