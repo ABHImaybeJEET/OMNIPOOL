@@ -116,6 +116,9 @@ export const deleteAiConversation = (id: string) =>
   api.delete(`/ai/conversations/${id}`);
 
 // ===== User Endpoints =====
+export const checkEmail = (email: string) =>
+  api.post("/users/check-email", { email });
+
 export const registerUser = (data: {
   name: string;
   email: string;
