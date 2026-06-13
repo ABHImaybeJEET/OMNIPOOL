@@ -133,6 +133,7 @@ app.use('/api/hardware', require('./routes/hardware.routes'));
 app.use('/api/projects', require('./routes/project.routes'));
 app.use('/api/requests', require('./routes/request.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
+app.use('/api/blogs', require('./routes/blog.routes'));
 
 // Root endpoint for cron-job / ping checks
 app.get('/', (req, res) => {

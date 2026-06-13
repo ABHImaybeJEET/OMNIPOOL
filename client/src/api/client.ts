@@ -226,4 +226,47 @@ export const getMyRank = (params?: {
   period?: LeaderboardPeriod;
 }) => api.get("/users/me/rank", { params });
 
+// ===== Blog Endpoints =====
+export const getBlogPosts = (params?: { search?: string; category?: string; tag?: string }) =>
+  api.get("/blogs", { params });
+
+export const getBlogPostBySlug = (slug: string) =>
+  api.get(`/blogs/post/${slug}`);
+
+export const getBlogPostById = (id: string) =>
+  api.get(`/blogs/id/${id}`);
+
+export const createBlogPost = (data: {
+  title: string;
+  summary: string;
+  content: string;
+  cover_image?: string;
+  category?: string;
+  tags?: string[];
+}) => api.post("/blogs", data);
+
+export const updateBlogPost = (
+  id: string,
+  data: {
+    title?: string;
+    summary?: string;
+    content?: string;
+    cover_image?: string;
+    category?: string;
+    tags?: string[];
+  },
+) => api.put(`/blogs/${id}`, data);
+
+export const deleteBlogPost = (id: string) =>
+  api.delete(`/blogs/${id}`);
+
+export const toggleLikeBlogPost = (id: string) =>
+  api.post(`/blogs/${id}/like`);
+
+export const addBlogPostComment = (id: string, text: string) =>
+  api.post(`/blogs/${id}/comments`, { text });
+
+export const deleteBlogPostComment = (id: string, commentId: string) =>
+  api.delete(`/blogs/${id}/comments/${commentId}`);
+
 export default api;
