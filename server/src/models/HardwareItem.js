@@ -29,6 +29,11 @@ const hardwareItemSchema = new mongoose.Schema({
       default: [0, 0],
     },
   },
+  location_name: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   availability_status: {
     type: String,
     enum: ['available', 'in-use', 'maintenance'],

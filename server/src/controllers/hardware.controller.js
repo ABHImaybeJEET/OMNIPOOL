@@ -12,13 +12,33 @@ const getHardware = async (req, res, next) => {
     if (req.query.status) filter.availability_status = req.query.status;
     if (req.query.owner) filter.owner_id = req.query.owner;
 
-    const hardware = await HardwareItem.find(filter)
-      .populate(
-        "owner_id",
-        "name email avatar_url company_name account_type role",
-      )
-      .sort({ createdAt: -1 })
-      .limit(50);
+    if (req.query.latitude && req.query.longitude) {
+      const lat = parseFloat(req.query.latitude);
+      const lng = parseFloat(req.query.longitude);
+      const maxDistance = parseFloat(req.query.maxDistance) || 100000; // default 100km
+
+      filter.location = {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat], // [longitude, latitude]
+          },
+          $maxDistance: maxDistance,
+        },
+      };
+    }
+
+    let query = HardwareItem.find(filter).populate(
+      "owner_id",
+      "name email avatar_url company_name account_type role",
+    );
+
+    // If we do geo-queries, it sorts by distance automatically, so don't sort by createdAt.
+    if (!req.query.latitude || !req.query.longitude) {
+      query = query.sort({ createdAt: -1 });
+    }
+
+    const hardware = await query.limit(50);
 
     res.json({ success: true, data: hardware });
   } catch (error) {
@@ -39,6 +59,7 @@ const createHardware = async (req, res, next) => {
       specs,
       image_url,
       location,
+      location_name,
       quantity,
       owner_type,
       brand,
@@ -81,6 +102,7 @@ const createHardware = async (req, res, next) => {
       image_url: image_url || "",
       item_description_embedding,
       location: location || { type: "Point", coordinates: [0, 0] },
+      location_name: location_name || "",
       quantity: quantity || 1,
       owner_type: normalizedOwnerType,
       brand: brand || "",
@@ -146,6 +168,8 @@ const updateHardware = async (req, res, next) => {
       owner_type,
       brand,
       condition,
+      location,
+      location_name,
     } = req.body;
     const updateData = {};
 
@@ -162,6 +186,8 @@ const updateHardware = async (req, res, next) => {
     }
     if (brand !== undefined) updateData.brand = brand;
     if (condition) updateData.condition = condition;
+    if (location) updateData.location = location;
+    if (location_name !== undefined) updateData.location_name = location_name;
 
     if (owner_type) {
       const owner = await User.findById(req.userId);
