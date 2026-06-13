@@ -27,8 +27,10 @@ import {
   Trash2,
   RefreshCw,
   Tag,
-  Activity
+  Activity,
+  MapPin
 } from "lucide-react";
+import HardwareMap from "../components/hardware/HardwareMap";
 
 // Category to Icon mapper helper
 const getCategoryIcon = (category: string) => {
@@ -50,9 +52,16 @@ const getCategoryIcon = (category: string) => {
 
 const RegistryPage: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"my_hardware" | "community">(
+  const [activeTab, setActiveTab] = useState<"my_hardware" | "community" | "hardware_map">(
     "community",
   );
+
+  const [focusedMapItem, setFocusedMapItem] = useState<HardwareItem | null>(null);
+
+  const handleViewLocation = (item: HardwareItem) => {
+    setFocusedMapItem(item);
+    setActiveTab("hardware_map");
+  };
 
   const { myHardware, setMyHardware, user } = useStore();
   const isEnterpriseApproved =
@@ -196,6 +205,8 @@ const RegistryPage: React.FC = () => {
       description: item.description || "",
       image_url: item.image_url || "",
       specs: normalizeSpecsForForm(item.specs),
+      location: item.location,
+      location_name: item.location_name,
     };
   };
 
@@ -319,10 +330,10 @@ const RegistryPage: React.FC = () => {
               sharing portfolio.
             </p>
           </div>
-          <div className="flex bg-bg-secondary border border-border-default rounded-xl p-1 shrink-0">
+          <div className="flex bg-bg-secondary border border-border-default rounded-xl p-1 shrink-0 gap-1">
             <button
               onClick={() => setActiveTab("community")}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 activeTab === "community"
                   ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
                   : "text-text-muted hover:text-text-primary"
@@ -331,8 +342,18 @@ const RegistryPage: React.FC = () => {
               Hardware Network
             </button>
             <button
+              onClick={() => setActiveTab("hardware_map")}
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                activeTab === "hardware_map"
+                  ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+            >
+              Radar Map
+            </button>
+            <button
               onClick={() => setActiveTab("my_hardware")}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 activeTab === "my_hardware"
                   ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
                   : "text-text-muted hover:text-text-primary"
@@ -472,6 +493,17 @@ const RegistryPage: React.FC = () => {
                         <Cpu className="w-3.5 h-3.5 text-accent-indigo/60 shrink-0" />
                         <span>Standard hardware configuration</span>
                       </div>
+                    )}
+
+                    {/* Location Pin */}
+                    {item.location_name && (
+                      <button
+                        onClick={() => handleViewLocation(item)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-4 text-xs font-semibold rounded-xl bg-bg-secondary hover:bg-accent-indigo/10 active:scale-95 transition-all text-text-secondary hover:text-accent-indigo border border-border-default/50 w-fit cursor-pointer leading-none"
+                      >
+                        <MapPin className="w-3.5 h-3.5 shrink-0 text-accent-indigo" />
+                        <span className="truncate max-w-[200px]">{item.location_name}</span>
+                      </button>
                     )}
 
                     {/* Footer */}
@@ -700,6 +732,17 @@ const RegistryPage: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Location Pin */}
+                      {item.location_name && (
+                        <button
+                          onClick={() => handleViewLocation(item)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 mb-4 text-xs font-semibold rounded-xl bg-bg-secondary hover:bg-accent-indigo/10 active:scale-95 transition-all text-text-secondary hover:text-accent-indigo border border-border-default/50 w-fit cursor-pointer leading-none"
+                        >
+                          <MapPin className="w-3.5 h-3.5 shrink-0 text-accent-indigo" />
+                          <span className="truncate max-w-[200px]">{item.location_name}</span>
+                        </button>
+                      )}
+
                       {/* Footer */}
                       <div className="mt-auto pt-4 border-t border-border-default/50 flex justify-between items-center gap-3">
                         <div className="text-xs text-text-muted">
@@ -746,6 +789,21 @@ const RegistryPage: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* --- VIEW: HARDWARE MAP --- */}
+        {activeTab === "hardware_map" && (
+          <div className="animate-fade-in-up">
+            <HardwareMap
+              items={communityHardware.concat(myHardware)}
+              onRequestHardware={(item) => {
+                setSelectedHardware(item);
+                setIsRequestModalOpen(true);
+              }}
+              focusedItem={focusedMapItem}
+              onClearFocusedItem={() => setFocusedMapItem(null)}
+            />
           </div>
         )}
       </div>

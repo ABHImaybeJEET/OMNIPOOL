@@ -100,6 +100,11 @@ export interface HardwareItem {
   brand?: string;
   condition?: string;
   sub_category?: string;
+  location?: {
+    type: string;
+    coordinates: [number, number];
+  };
+  location_name?: string;
 }
 
 export interface HardwareRequest {

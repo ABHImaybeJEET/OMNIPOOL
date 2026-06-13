@@ -105,6 +105,11 @@ interface RobuInspiredHardwareFormProps {
     description: string;
     image_url: string;
     specs: Record<string, string>;
+    location?: {
+      type: string;
+      coordinates: [number, number];
+    };
+    location_name?: string;
   };
   submitLabel?: string;
 }
@@ -134,7 +139,79 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
     description: "",
     image_url: "",
     specs: {} as Record<string, string>,
+    latitude: "",
+    longitude: "",
+    location_name: "",
   });
+
+  const [isLocating, setIsLocating] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [locationError, setLocationError] = useState("");
+
+  const handleGeocodeAddress = async () => {
+    const query = formData.location_name.trim();
+    if (!query) {
+      setLocationError("Please enter a location name or address first.");
+      return;
+    }
+
+    setIsGeocoding(true);
+    setLocationError("");
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`
+      );
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setFormData((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lon,
+        }));
+      } else {
+        setLocationError("Could not resolve coordinates. Try adding city or pin code.");
+      }
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      setLocationError("Failed to fetch coordinates. Please enter manually.");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: String(position.coords.latitude),
+          longitude: String(position.coords.longitude),
+        }));
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        setLocationError(
+          error.code === 1
+            ? "Permission denied. Please allow location access."
+            : "Unable to retrieve location."
+        );
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const [specKey, setSpecKey] = useState("");
   const [specValue, setSpecValue] = useState("");
@@ -176,8 +253,19 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
     if (!initialValues) return;
 
     setFormData({
-      ...initialValues,
-      specs: { ...initialValues.specs },
+      name: initialValues.name || "",
+      brand: initialValues.brand || "",
+      category: initialValues.category || "Microcontrollers",
+      sub_category: initialValues.sub_category || "Arduino",
+      condition: initialValues.condition || "new",
+      quantity: String(initialValues.quantity || "1"),
+      owner_type: initialValues.owner_type || "community",
+      description: initialValues.description || "",
+      image_url: initialValues.image_url || "",
+      specs: { ...(initialValues.specs || {}) },
+      latitude: initialValues.location?.coordinates?.[1] !== undefined ? String(initialValues.location.coordinates[1]) : "",
+      longitude: initialValues.location?.coordinates?.[0] !== undefined ? String(initialValues.location.coordinates[0]) : "",
+      location_name: initialValues.location_name || "",
     });
     setSpecKey("");
     setSpecValue("");
@@ -276,11 +364,33 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
       Other: "other",
     };
 
+    const latNum = parseFloat(formData.latitude);
+    const lngNum = parseFloat(formData.longitude);
+    const hasCoords = !isNaN(latNum) && !isNaN(lngNum);
+
+    if (formData.location_name.trim() && !hasCoords) {
+      setLocationError("Coordinates must be resolved before submitting. Click 'Locate Coordinates' or 'Auto-Detect My Location' first.");
+      return;
+    }
+
     const payload = {
-      ...formData,
+      name: formData.name,
+      brand: formData.brand,
       category: catMap[formData.category] || "other",
+      sub_category: formData.sub_category,
+      condition: formData.condition,
       quantity: Math.max(1, Number(formData.quantity) || 1),
+      owner_type: formData.owner_type,
+      description: formData.description,
+      image_url: formData.image_url,
       specs: cleanSpecs,
+      location: hasCoords
+        ? {
+            type: "Point",
+            coordinates: [lngNum, latNum], // [longitude, latitude] for GeoJSON
+          }
+        : undefined,
+      location_name: formData.location_name.trim(),
     };
 
     onSubmit(payload);
@@ -411,6 +521,97 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
             <p className="text-xs text-text-muted mt-1">
               Enterprise listing unlocks after enterprise application approval.
             </p>
+          )}
+        </div>
+      </div>
+
+      {/* Location Details */}
+      <div className="bg-bg-secondary border border-border-default rounded-xl p-4 space-y-3">
+        <label className="block text-sm font-bold text-text-primary">
+          Location Details
+        </label>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+              Location Name / Address
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="e.g. NIT Rourkela, Odisha or 769008"
+                value={formData.location_name}
+                onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
+                className="flex-1 bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-sans text-sm"
+                required
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleGeocodeAddress}
+                isLoading={isGeocoding}
+                className="px-4 py-2.5 h-auto text-xs shrink-0 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Locate Coordinates
+              </Button>
+            </div>
+            <p className="text-[10px] text-text-muted mt-1.5">
+              Enter a landmark name, pin code, or address and click "Locate Coordinates" to auto-resolve coordinates.
+            </p>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+              Latitude
+            </label>
+            <input
+              type="number"
+              step="any"
+              placeholder="e.g. 32.7767"
+              value={formData.latitude}
+              onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+              className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-mono text-sm"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+              Longitude
+            </label>
+            <input
+              type="number"
+              step="any"
+              placeholder="e.g. -96.7970"
+              value={formData.longitude}
+              onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+              className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-mono text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleDetectLocation}
+            className="flex items-center justify-center gap-1.5 h-auto py-2 px-3 text-xs w-full sm:w-auto cursor-pointer"
+            isLoading={isLocating}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Auto-Detect My Location
+          </Button>
+
+          {locationError && (
+            <span className="text-xs text-accent-rose font-medium mt-1 sm:mt-0 animate-fade-in">
+              {locationError}
+            </span>
           )}
         </div>
       </div>
