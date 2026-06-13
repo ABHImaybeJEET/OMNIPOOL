@@ -270,7 +270,7 @@ const BlogFormPage: React.FC = () => {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter a descriptive title..."
                 required
-                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all"
               />
             </div>
 
@@ -285,7 +285,7 @@ const BlogFormPage: React.FC = () => {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors cursor-pointer"
+                  className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all cursor-pointer"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat} className="bg-bg-card text-text-primary">
@@ -305,7 +305,7 @@ const BlogFormPage: React.FC = () => {
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="e.g. node, setup, tutorial"
-                  className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                  className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all"
                 />
               </div>
 
@@ -321,7 +321,7 @@ const BlogFormPage: React.FC = () => {
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
                 placeholder="https://example.com/image.jpg"
-                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all"
               />
             </div>
 
@@ -337,7 +337,7 @@ const BlogFormPage: React.FC = () => {
                 rows={3}
                 maxLength={300}
                 required
-                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors resize-none"
+                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all resize-none"
               />
             </div>
 
@@ -352,7 +352,7 @@ const BlogFormPage: React.FC = () => {
                 placeholder="Write your article body here. Support paragraphs by leaving empty lines..."
                 rows={12}
                 required
-                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-3 text-sm font-mono text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                className="w-full bg-bg-tertiary/40 border border-border-default/60 rounded-xl px-4 py-3 text-sm font-mono text-text-primary focus:outline-none focus:border-accent-indigo/60 focus:ring-2 focus:ring-accent-indigo/15 transition-all"
               />
             </div>
 
