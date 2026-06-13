@@ -602,7 +602,7 @@ const ChatPage: React.FC = () => {
           {activeConversationId && currentConversation ? (
             <>
               {/* Chat Header */}
-              <div className="h-[80px] border-b border-border-default/50 px-4 md:px-8 flex justify-between items-center bg-white/70 backdrop-blur-xl shrink-0 z-20 absolute top-0 inset-x-0">
+              <div className="h-[80px] border-b border-border-default/50 px-4 md:px-8 flex justify-between items-center bg-white/70 backdrop-blur-xl shrink-0 z-30 absolute top-0 inset-x-0">
                 <div className="flex items-center gap-2 md:gap-4 min-w-0">
                   <button
                     type="button"
