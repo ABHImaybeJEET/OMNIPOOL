@@ -397,8 +397,8 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Name */}
         <div className="md:col-span-2">
           <Input
@@ -418,40 +418,44 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
           onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
         />
 
-        {/* Condition */}
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
+        {/* Condition (Segmented buttons tabs) */}
+        <div className="flex flex-col justify-start">
+          <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
             Condition
           </label>
-          <div className="flex gap-4">
-            {["new", "used", "refurbished"].map((c) => (
-              <label key={c} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="condition"
-                  value={c}
-                  checked={formData.condition === c}
-                  onChange={() => setFormData({ ...formData, condition: c })}
-                  className="text-accent-indigo focus:ring-accent-indigo"
-                />
-                <span className="text-sm capitalize">{c}</span>
-              </label>
-            ))}
+          <div className="flex bg-bg-secondary/60 border border-border-default/60 rounded-xl p-1 gap-1 w-full sm:w-fit shrink-0">
+            {["new", "used", "refurbished"].map((c) => {
+              const isActive = formData.condition === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, condition: c as any })}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${
+                    isActive
+                      ? "bg-accent-indigo text-white shadow-sm"
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-secondary/40"
+                  }`}
+                >
+                  {c}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Category */}
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
+        <div className="flex flex-col">
+          <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
             Category
           </label>
           <select
             value={formData.category}
             onChange={handleCategoryChange}
-            className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all"
+            className="w-full bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all cursor-pointer font-sans"
           >
             {Object.keys(CATEGORY_TREE).map((cat) => (
-              <option key={cat} value={cat}>
+              <option key={cat} value={cat} className="bg-white text-text-primary">
                 {cat}
               </option>
             ))}
@@ -459,8 +463,8 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
         </div>
 
         {/* Sub Category */}
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
+        <div className="flex flex-col">
+          <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
             Sub-Category
           </label>
           <select
@@ -468,11 +472,11 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
             onChange={(e) =>
               setFormData({ ...formData, sub_category: e.target.value })
             }
-            className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all"
+            className="w-full bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all cursor-pointer font-sans"
           >
             {CATEGORY_TREE[formData.category as keyof typeof CATEGORY_TREE].map(
               (sub) => (
-                <option key={sub} value={sub}>
+                <option key={sub} value={sub} className="bg-white text-text-primary">
                   {sub}
                 </option>
               ),
@@ -498,8 +502,8 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
         </div>
 
         {/* Listing Type */}
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1.5">
+        <div className="md:col-span-2 flex flex-col">
+          <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
             Listing Type
           </label>
           <select
@@ -510,30 +514,34 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
                 owner_type: e.target.value as "community" | "enterprise",
               })
             }
-            className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all"
+            className="w-full bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all cursor-pointer font-sans"
           >
-            <option value="community">Personal / Community</option>
+            <option value="community" className="bg-white text-text-primary">Personal / Community</option>
             {isEnterpriseApproved && (
-              <option value="enterprise">Company / Enterprise</option>
+              <option value="enterprise" className="bg-white text-text-primary">Company / Enterprise</option>
             )}
           </select>
           {!isEnterpriseApproved && (
-            <p className="text-xs text-text-muted mt-1">
-              Enterprise listing unlocks after enterprise application approval.
+            <p className="text-[10px] text-text-muted mt-1.5 font-medium leading-normal">
+              ℹ️ Enterprise listing unlocks after enterprise application approval.
             </p>
           )}
         </div>
       </div>
 
-      {/* Location Details */}
-      <div className="bg-bg-secondary border border-border-default rounded-xl p-4 space-y-3">
-        <label className="block text-sm font-bold text-text-primary">
-          Location Details
-        </label>
+      {/* Location Details (Premium Cards section) */}
+      <div className="bg-gradient-to-br from-accent-indigo/5 to-accent-violet/5 border border-accent-indigo/15 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center gap-2 pb-2.5 border-b border-accent-indigo/15">
+          <svg className="w-4 h-4 text-accent-indigo" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <h4 className="text-sm font-bold text-text-primary">Location Coordinates</h4>
+        </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2 flex flex-col">
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
               Location Name / Address
             </label>
             <div className="flex gap-2">
@@ -542,7 +550,7 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
                 placeholder="e.g. NIT Rourkela, Odisha or 769008"
                 value={formData.location_name}
                 onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
-                className="flex-1 bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-sans text-sm"
+                className="flex-1 bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted/60 focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all font-sans"
                 required
               />
               <Button
@@ -550,21 +558,21 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
                 variant="secondary"
                 onClick={handleGeocodeAddress}
                 isLoading={isGeocoding}
-                className="px-4 py-2.5 h-auto text-xs shrink-0 cursor-pointer flex items-center justify-center gap-1.5"
+                className="px-4 py-2.5 h-auto text-xs shrink-0 cursor-pointer flex items-center justify-center gap-1.5 bg-white/70 border border-border-default/80 hover:bg-white transition-all rounded-xl"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 Locate Coordinates
               </Button>
             </div>
-            <p className="text-[10px] text-text-muted mt-1.5">
+            <p className="text-[10px] text-text-muted mt-1.5 font-medium leading-normal">
               Enter a landmark name, pin code, or address and click "Locate Coordinates" to auto-resolve coordinates.
             </p>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+          <div className="flex flex-col">
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
               Latitude
             </label>
             <input
@@ -573,12 +581,12 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
               placeholder="e.g. 32.7767"
               value={formData.latitude}
               onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-              className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-mono text-sm"
+              className="w-full bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all font-mono"
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5 font-sans">
+          <div className="flex flex-col">
+            <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
               Longitude
             </label>
             <input
@@ -587,73 +595,71 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
               placeholder="e.g. -96.7970"
               value={formData.longitude}
               onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-              className="w-full bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all font-mono text-sm"
+              className="w-full bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all font-mono"
             />
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
           <Button
             type="button"
             variant="secondary"
             size="sm"
             onClick={handleDetectLocation}
-            className="flex items-center justify-center gap-1.5 h-auto py-2 px-3 text-xs w-full sm:w-auto cursor-pointer"
+            className="flex items-center justify-center gap-1.5 h-auto py-2.5 px-4 text-xs w-full sm:w-auto cursor-pointer bg-white/70 border border-border-default/80 hover:bg-white rounded-xl shadow-xs transition-colors"
             isLoading={isLocating}
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg className="w-3.5 h-3.5 text-accent-indigo" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             Auto-Detect My Location
           </Button>
 
           {locationError && (
-            <span className="text-xs text-accent-rose font-medium mt-1 sm:mt-0 animate-fade-in">
-              {locationError}
+            <span className="text-xs text-accent-rose font-semibold mt-1 sm:mt-0 animate-fade-in bg-accent-rose/5 border border-accent-rose/20 px-3 py-1 rounded-lg">
+              ⚠️ {locationError}
             </span>
           )}
         </div>
       </div>
 
       {/* Description */}
-      <div>
-        <label className="block text-sm font-medium text-text-secondary mb-1.5">
+      <div className="flex flex-col">
+        <label className="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">
           Description (Features & Details)
         </label>
         <textarea
-          placeholder="Describe the hardware, known issues, exact model numbers..."
+          placeholder="Describe the hardware specifications, condition details, compatibility parameters, or other user instructions..."
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
           }
-          className="w-full min-h-25 bg-bg-tertiary border border-border-default rounded-xl px-4 py-2.5 text-text-primary placeholder-text-muted focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30 transition-all resize-y"
+          className="w-full min-h-25 bg-white/40 border border-border-default/80 rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted/60 focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10 transition-all resize-y"
           required
         />
       </div>
 
       {/* Specifications */}
-      <div className="bg-bg-secondary border border-border-default rounded-xl p-4">
-        <div className="flex justify-between items-center mb-3">
-          <label className="block text-sm font-bold text-text-primary">
-            Specifications
+      <div className="bg-white/40 border border-border-default/80 rounded-2xl p-5 space-y-4">
+        <div className="flex justify-between items-center pb-2.5 border-b border-border-default/50">
+          <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
+            Technical Specifications
           </label>
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
             onClick={handlePopulateSmartSpecs}
-            className="text-xs py-1 h-auto text-accent-indigo"
+            className="text-xs font-bold text-accent-indigo hover:text-accent-violet hover:underline cursor-pointer transition-colors"
           >
             + Smart Defaults
-          </Button>
+          </button>
         </div>
 
         {Object.entries(formData.specs).length > 0 && (
-          <div className="space-y-2 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             {Object.entries(formData.specs).map(([key, val]) => (
-              <div key={key} className="flex gap-2 items-center">
-                <span className="text-sm text-text-secondary w-24 sm:w-32 md:w-40 shrink-0 truncate bg-bg-tertiary px-3 py-2 rounded-lg border border-border-default">
+              <div key={key} className="flex gap-2 items-center bg-bg-secondary/40 border border-border-default/45 p-2.5 rounded-xl">
+                <span className="text-xs font-bold text-text-secondary w-24 sm:w-28 shrink-0 truncate uppercase tracking-wider">
                   {key}
                 </span>
                 <input
@@ -661,25 +667,16 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
                   placeholder="Value..."
                   value={val}
                   onChange={(e) => handleUpdateSpec(key, e.target.value)}
-                  className="flex-1 min-w-0 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+                  className="flex-1 min-w-0 bg-white/60 border border-border-default/60 rounded-lg px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveSpec(key)}
-                  className="p-2 text-text-muted hover:text-accent-rose transition-colors shrink-0"
+                  className="p-1.5 text-text-muted hover:text-accent-rose hover:bg-white rounded-lg transition-colors shrink-0 cursor-pointer"
+                  title="Remove spec"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
@@ -689,37 +686,36 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
 
         <div className="flex flex-col sm:flex-row gap-2">
           <input
-            placeholder="Spec key or 'Type: UNO'"
+            placeholder="Spec Key (e.g. Memory)"
             value={specKey}
             onChange={(e) => setSpecKey(e.target.value)}
             onKeyDown={(e) =>
               e.key === "Enter" && (e.preventDefault(), handleAddSpec())
             }
-            className="w-full sm:w-1/3 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+            className="w-full sm:w-1/3 bg-white/40 border border-border-default/80 rounded-xl px-4 py-2 text-xs text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10"
           />
           <div className="flex gap-2 flex-1">
             <input
-              placeholder="Value"
+              placeholder="Value (e.g. 512 MB)"
               value={specValue}
               onChange={(e) => setSpecValue(e.target.value)}
               onKeyDown={(e) =>
                 e.key === "Enter" && (e.preventDefault(), handleAddSpec())
               }
-              className="flex-1 min-w-0 bg-bg-tertiary border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo"
+              className="flex-1 min-w-0 bg-white/40 border border-border-default/80 rounded-xl px-4 py-2 text-xs text-text-primary focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10"
             />
             <Button
               type="button"
               variant="secondary"
               onClick={handleAddSpec}
-              className="px-4 py-2 h-auto text-sm shrink-0"
+              className="px-4 py-2 h-auto text-xs font-bold rounded-xl bg-white/70 border border-border-default/80 hover:bg-white"
             >
-              Add
+              Add Spec
             </Button>
           </div>
         </div>
-        <p className="mt-2 text-xs text-text-muted">
-          Tip: You can type "Type UNO" or "Type: UNO" in one field. Any pending
-          spec will also be included when you submit.
+        <p className="text-[10px] text-text-muted leading-relaxed">
+          Tip: You can quickly input "Type: Uno" or similar single-line pairs in the Spec field.
         </p>
       </div>
 
@@ -732,12 +728,12 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
         }
       />
 
-      <div className="flex gap-3 pt-4 border-t border-border-default">
+      <div className="flex gap-3 pt-5 border-t border-border-default/50">
         <Button
           type="button"
           variant="ghost"
           onClick={onCancel}
-          className="flex-1"
+          className="flex-1 rounded-xl font-bold text-xs"
         >
           Cancel
         </Button>
@@ -745,7 +741,7 @@ const RobuInspiredHardwareForm: React.FC<RobuInspiredHardwareFormProps> = ({
           type="submit"
           variant="primary"
           isLoading={isLoading}
-          className="flex-1 flex justify-center items-center gap-2"
+          className="flex-1 flex justify-center items-center gap-2 rounded-xl font-bold text-xs shadow-md shadow-accent-indigo/10"
         >
           {submitLabel}
         </Button>

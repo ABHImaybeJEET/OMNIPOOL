@@ -32,9 +32,9 @@ const Input: React.FC<InputProps> = ({
         <input
           id={inputId}
           className={`
-            w-full bg-bg-tertiary border border-border-default rounded-xl
-            px-4 py-2.5 text-text-primary placeholder-text-muted
-            focus:outline-none focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo/30
+            w-full bg-white/40 border border-border-default/80 rounded-xl
+            px-4 py-2.5 text-sm text-text-primary placeholder-text-muted/60
+            focus:outline-none focus:border-accent-indigo focus:ring-2 focus:ring-accent-indigo/10
             transition-all duration-200
             ${icon ? 'pl-10' : ''}
             ${error ? 'border-accent-rose focus:border-accent-rose focus:ring-accent-rose/30' : ''}
