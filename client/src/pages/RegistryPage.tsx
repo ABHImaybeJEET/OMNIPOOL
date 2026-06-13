@@ -330,10 +330,10 @@ const RegistryPage: React.FC = () => {
               sharing portfolio.
             </p>
           </div>
-          <div className="flex bg-bg-secondary border border-border-default rounded-xl p-1 shrink-0 gap-1">
+          <div className="flex w-full md:w-auto overflow-x-auto no-scrollbar bg-bg-secondary border border-border-default rounded-xl p-1 shrink-0 gap-1">
             <button
               onClick={() => setActiveTab("community")}
-              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "community"
                   ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
                   : "text-text-muted hover:text-text-primary"
@@ -343,7 +343,7 @@ const RegistryPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab("hardware_map")}
-              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "hardware_map"
                   ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
                   : "text-text-muted hover:text-text-primary"
@@ -353,7 +353,7 @@ const RegistryPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab("my_hardware")}
-              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === "my_hardware"
                   ? "bg-bg-card shadow-sm text-text-primary border border-border-default"
                   : "text-text-muted hover:text-text-primary"
@@ -368,13 +368,13 @@ const RegistryPage: React.FC = () => {
         {activeTab === "community" && (
           <div className="animate-fade-in-up">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-              <div className="space-y-2">
-                <div className="flex bg-bg-secondary/50 p-1 rounded-lg border border-border-default">
+              <div className="space-y-2 w-full sm:w-auto">
+                <div className="flex w-full sm:w-auto overflow-x-auto no-scrollbar bg-bg-secondary/50 p-1 rounded-lg border border-border-default gap-0.5">
                   {(["all", "community", "enterprise"] as const).map((f) => (
                     <button
                       key={f}
                       onClick={() => setFilter(f)}
-                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                         filter === f
                           ? "bg-bg-glass text-text-primary border border-border-default"
                           : "text-text-muted hover:text-text-primary"

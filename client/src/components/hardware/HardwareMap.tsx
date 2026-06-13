@@ -166,6 +166,16 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
     };
   }, [items, onRequestHardware]);
 
+  // Listen to sidebar changes and invalidate map size after transition finishes to prevent layout glitches
+  useEffect(() => {
+    if (mapRef.current) {
+      const timer = setTimeout(() => {
+        mapRef.current.invalidateSize();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [isSidebarOpen]);
+
   // Request browser geolocation on mount
   useEffect(() => {
     detectUserLocation();
@@ -261,7 +271,15 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
     // Create layers group
     markersGroupRef.current = L.layerGroup().addTo(map);
 
+    // Trigger map invalidation shortly after mounting to guarantee correct render dimensions
+    const mountTimer = setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 250);
+
     return () => {
+      clearTimeout(mountTimer);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -472,9 +490,9 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
     });
 
   return (
-    <div className="relative w-full flex flex-col md:flex-row h-auto md:h-[650px] rounded-3xl overflow-hidden border border-border-default/60 shadow-glow-sm bg-white/70 backdrop-blur-md">
+    <div className="relative w-full flex flex-col md:flex-row h-[650px] rounded-3xl overflow-hidden border border-border-default/60 shadow-glow-sm bg-white/70 backdrop-blur-md">
       {/* Map Wrapper */}
-      <div className="relative flex-1 h-[350px] md:h-full w-full z-0">
+      <div className={`relative w-full shrink-0 z-0 transition-all duration-300 ${isSidebarOpen ? "h-[300px]" : "h-full"} md:h-full md:flex-1`}>
         {/* Interactive Map */}
         <div ref={mapContainerRef} className="w-full h-full"></div>
 
@@ -514,10 +532,10 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
 
       {/* Nearby Discover sidebar */}
       <div
-        className={`bg-white/95 backdrop-blur-lg transition-all duration-300 z-10 flex flex-col ${
+        className={`bg-white/95 backdrop-blur-lg transition-all duration-300 z-10 flex flex-col relative shrink-0 ${
           isSidebarOpen
-            ? "relative w-full h-[450px] border-t border-border-default/50 md:border-t-0 md:h-full md:w-[340px] md:absolute md:top-0 md:right-0 md:border-l"
-            : "relative w-full h-0 overflow-hidden md:h-full md:w-0 md:absolute md:top-0 md:right-0 md:border-l-0"
+            ? "w-full h-[350px] border-t border-border-default/50 md:border-t-0 md:h-full md:w-[340px] md:absolute md:top-0 md:right-0 md:border-l"
+            : "w-full h-0 overflow-hidden md:h-full md:w-0 md:absolute md:top-0 md:right-0 md:border-l-0"
         }`}
       >
         {/* Toggle button */}
