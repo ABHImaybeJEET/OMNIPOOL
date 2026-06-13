@@ -489,7 +489,7 @@ const BlogPostPage: React.FC = () => {
                         {canDelete && (
                           <button
                             onClick={() => handleCommentDelete(comment._id)}
-                            className="text-text-muted hover:text-accent-rose p-1 rounded transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                            className="text-text-muted hover:text-accent-rose p-1 rounded transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
                             title="Delete comment"
                           >
                             <Trash2 size={12} />
