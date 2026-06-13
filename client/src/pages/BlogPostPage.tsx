@@ -185,13 +185,76 @@ const BlogPostPage: React.FC = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Render article content safely with paragraphs
+  // Basic inline bold parsing: **text** -> <strong>text</strong>
+  const parseInlineStyles = (text: string) => {
+    const parts = text.split(/\*\*([^*]+)\*\*/g);
+    if (parts.length === 1) return text;
+    return parts.map((part, index) => {
+      if (index % 2 === 1) {
+        return (
+          <strong key={index} className="font-semibold text-text-primary">
+            {part}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  // Render article content safely with headings, lists, bold text and rules
   const renderContent = (text: string) => {
-    return text.split("\n\n").map((para, i) => (
-      <p key={i} className="mb-5 leading-relaxed text-text-primary/90 text-base md:text-lg whitespace-pre-line font-light">
-        {para}
-      </p>
-    ));
+    return text.split("\n\n").map((block, i) => {
+      const trimmed = block.trim();
+
+      // Horizontal Rule
+      if (trimmed === "---" || trimmed === "***") {
+        return <hr key={i} className="my-8 border-border-default/50" />;
+      }
+
+      // Headings
+      if (trimmed.startsWith("# ")) {
+        return (
+          <h1 key={i} className="text-3xl font-extrabold text-text-primary mt-8 mb-4">
+            {parseInlineStyles(trimmed.replace("# ", ""))}
+          </h1>
+        );
+      }
+      if (trimmed.startsWith("## ")) {
+        return (
+          <h2 key={i} className="text-2xl font-bold text-text-primary mt-6 mb-3">
+            {parseInlineStyles(trimmed.replace("## ", ""))}
+          </h2>
+        );
+      }
+      if (trimmed.startsWith("### ")) {
+        return (
+          <h3 key={i} className="text-xl font-bold text-text-primary mt-5 mb-2.5">
+            {parseInlineStyles(trimmed.replace("### ", ""))}
+          </h3>
+        );
+      }
+
+      // Unordered Lists
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
+        const items = trimmed.split("\n").map((item) => item.replace(/^[-*•]\s+/, ""));
+        return (
+          <ul key={i} className="list-disc list-inside space-y-1.5 mb-5 pl-4 text-text-primary/85">
+            {items.map((item, idx) => (
+              <li key={idx} className="text-base font-light">
+                {parseInlineStyles(item)}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      // Default Paragraph
+      return (
+        <p key={i} className="mb-5 leading-relaxed text-text-primary/90 text-base md:text-lg font-light whitespace-pre-line">
+          {parseInlineStyles(trimmed)}
+        </p>
+      );
+    });
   };
 
   return (
