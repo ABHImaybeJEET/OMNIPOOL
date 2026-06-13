@@ -71,7 +71,9 @@ const SignUpPage: React.FC = () => {
           to_email: targetEmail,
           otp_code: otp,
         },
-        publicKey
+        {
+          publicKey: publicKey,
+        }
       );
       setDevModeOtp(null);
       setTimer(60);
