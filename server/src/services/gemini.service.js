@@ -140,7 +140,9 @@ ${hardwareContext}
 AVAILABLE COMMUNITY MENTORS:
 ${mentorContext}
 
-Provide a realistic strategy, difficulty assessment, and a feasibility score (0-100) based on resource availability.`;
+Provide a realistic strategy, difficulty assessment, and a feasibility score (0-100) based on resource availability.
+
+CRITICAL INSTRUCTION: Focus your strategy and next_steps strictly on detailed technical guidance, installation steps, coding guidelines, and physical hardware configuration. Do NOT suggest or guide the user to 'connect with a mentor', 'reach out to the matched mentor', or list contacting/consulting a mentor as a preliminary or next step. Keep the advice strictly technical.`;
 
     return runWithRotation(async () => {
       const { output } = await ai.generate({

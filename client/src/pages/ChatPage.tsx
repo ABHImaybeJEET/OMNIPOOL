@@ -550,7 +550,7 @@ const ChatPage: React.FC = () => {
                 const hwItem =
                   conv.hardware_id && typeof conv.hardware_id === "object"
                     ? conv.hardware_id
-                    : { name: "Hardware" };
+                    : null;
 
                 return (
                   <button
@@ -575,7 +575,13 @@ const ChatPage: React.FC = () => {
                           {contactObject.name}
                         </div>
                         <div className="text-xs text-text-muted truncate mt-0.5">
-                          <span className="font-medium">Ref:</span> {hwItem.name}
+                          {hwItem ? (
+                            <>
+                              <span className="font-medium">Ref:</span> {hwItem.name}
+                            </>
+                          ) : (
+                            <span className="font-semibold text-accent-indigo">Mentor Session</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -622,13 +628,17 @@ const ChatPage: React.FC = () => {
                         ? otherUser.name
                         : "User"}
                     </h3>
-                    <div className="text-xs text-text-muted truncate mt-0.5 font-medium font-mono">
+                    <div className="text-xs text-text-muted truncate mt-0.5 font-medium">
                       {currentConversation.hardware_id &&
                       typeof currentConversation.hardware_id === "object" &&
-                      "name" in currentConversation.hardware_id
-                        ? currentConversation.hardware_id.name
-                        : "Item"}{" "}
-                      <span className="opacity-60">(Qty: {currentConversation.quantity_requested})</span>
+                      "name" in currentConversation.hardware_id ? (
+                        <>
+                          <span className="font-semibold">{currentConversation.hardware_id.name}</span>
+                          <span className="opacity-60 font-mono"> (Qty: {currentConversation.quantity_requested})</span>
+                        </>
+                      ) : (
+                        <span className="text-accent-indigo font-bold">Expert Mentoring Session</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -706,13 +716,15 @@ const ChatPage: React.FC = () => {
                   <span className="text-xs font-semibold text-text-secondary truncate pr-2">
                     {currentConversation.status === "pending"
                       ? "Review request status"
-                      : isCurrentUserOwner
-                        ? currentConversation.requester_completed
-                          ? "Partner marked completed"
-                          : "Mark when handover is done"
-                        : currentConversation.owner_completed
-                          ? "Partner marked completed"
-                          : "Mark when equipment is received"}
+                      : !currentConversation.hardware_id
+                        ? "Mentoring chat active. Mark complete when done."
+                        : isCurrentUserOwner
+                          ? currentConversation.requester_completed
+                            ? "Partner marked completed"
+                            : "Mark when handover is done"
+                          : currentConversation.owner_completed
+                            ? "Partner marked completed"
+                            : "Mark when equipment is received"}
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
                     {currentConversation.status === "pending" ? (

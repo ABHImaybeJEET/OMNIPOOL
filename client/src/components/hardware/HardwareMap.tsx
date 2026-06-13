@@ -472,31 +472,58 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
     });
 
   return (
-    <div className="relative w-full h-[650px] rounded-3xl overflow-hidden border border-border-default/60 shadow-glow-sm bg-white/70 backdrop-blur-md flex">
-      {/* Interactive Map */}
-      <div ref={mapContainerRef} className="flex-1 h-full z-0"></div>
+    <div className="relative w-full flex flex-col md:flex-row h-auto md:h-[650px] rounded-3xl overflow-hidden border border-border-default/60 shadow-glow-sm bg-white/70 backdrop-blur-md">
+      {/* Map Wrapper */}
+      <div className="relative flex-1 h-[350px] md:h-full w-full z-0">
+        {/* Interactive Map */}
+        <div ref={mapContainerRef} className="w-full h-full"></div>
 
-      {/* Floating GPS Button */}
-      <button
-        onClick={detectUserLocation}
-        title="Find My Location"
-        className={`absolute bottom-6 left-6 z-10 p-3 rounded-2xl bg-white border border-border-default/80 shadow-md hover:shadow-lg active:scale-95 transition-all text-text-secondary hover:text-accent-indigo cursor-pointer flex items-center justify-center ${
-          isLocating ? "animate-pulse text-accent-indigo" : ""
-        }`}
-      >
-        <Compass className={`w-5 h-5 ${isLocating ? "animate-spin" : ""}`} />
-      </button>
+        {/* Floating GPS Button */}
+        <button
+          onClick={detectUserLocation}
+          title="Find My Location"
+          className={`absolute bottom-6 left-6 z-10 p-3 rounded-2xl bg-white border border-border-default/80 shadow-md hover:shadow-lg active:scale-95 transition-all text-text-secondary hover:text-accent-indigo cursor-pointer flex items-center justify-center ${
+            isLocating ? "animate-pulse text-accent-indigo" : ""
+          }`}
+        >
+          <Compass className={`w-5 h-5 ${isLocating ? "animate-spin" : ""}`} />
+        </button>
+
+        {/* Slideout mini map icon button if closed */}
+        {!isSidebarOpen && (
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="absolute top-6 right-6 z-10 p-3 rounded-2xl bg-white border border-border-default/80 shadow-md hover:shadow-lg active:scale-95 transition-all text-text-secondary hover:text-accent-indigo cursor-pointer flex items-center justify-center"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Pulse GPS Detection Overlay */}
+        {isLocating && (
+          <div className="absolute inset-0 bg-bg-primary/25 backdrop-blur-xs flex flex-col items-center justify-center z-20 animate-fade-in pointer-events-none">
+            <div className="w-16 h-16 rounded-full bg-accent-indigo/20 flex items-center justify-center animate-ping">
+              <Compass className="w-8 h-8 text-accent-indigo animate-spin" />
+            </div>
+            <span className="text-xs font-semibold text-text-secondary mt-4 bg-white/90 border border-border-default px-3 py-1.5 rounded-full shadow-sm">
+              Tuning Geolocation Radar...
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Nearby Discover sidebar */}
       <div
-        className={`absolute top-0 right-0 h-full bg-white/95 backdrop-blur-lg border-l border-border-default/50 transition-all duration-300 z-10 flex flex-col ${
-          isSidebarOpen ? "w-[340px]" : "w-0 overflow-hidden"
+        className={`bg-white/95 backdrop-blur-lg transition-all duration-300 z-10 flex flex-col ${
+          isSidebarOpen
+            ? "relative w-full h-[450px] border-t border-border-default/50 md:border-t-0 md:h-full md:w-[340px] md:absolute md:top-0 md:right-0 md:border-l"
+            : "relative w-full h-0 overflow-hidden md:h-full md:w-0 md:absolute md:top-0 md:right-0 md:border-l-0"
         }`}
       >
         {/* Toggle button */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute top-[48%] -left-8 p-1.5 rounded-l-xl bg-white border border-r-0 border-border-default/60 shadow-md text-text-muted hover:text-accent-indigo transition-colors cursor-pointer flex items-center justify-center"
+          className="absolute top-4 right-4 md:top-[48%] md:-left-8 md:right-auto p-1.5 rounded-xl md:rounded-l-xl md:rounded-r-none bg-white border border-border-default/60 md:border-r-0 shadow-md text-text-muted hover:text-accent-indigo transition-colors cursor-pointer flex items-center justify-center z-20"
         >
           {isSidebarOpen ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
@@ -504,7 +531,7 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
         {isSidebarOpen && (
           <div className="p-5 flex-1 flex flex-col min-h-0">
             {/* Title */}
-            <div className="mb-4">
+            <div className="mb-4 pr-8 md:pr-0">
               <h3 className="text-base font-bold text-text-primary flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-accent-indigo" />
                 Nearby Hardwares
@@ -566,7 +593,7 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
                 const style = getStyle(item.category);
                 const ownerName =
                   typeof item.owner_id === "object"
-                    ? item.owner_id?.company_name || item.owner_id?.name || "Member"
+                     ? item.owner_id?.company_name || item.owner_id?.name || "Member"
                     : "Member";
 
                 return (
@@ -625,28 +652,6 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
           </div>
         )}
       </div>
-
-      {/* Slideout mini map icon button if closed */}
-      {!isSidebarOpen && (
-        <button
-          onClick={() => setIsSidebarOpen(true)}
-          className="absolute top-6 right-6 z-10 p-3 rounded-2xl bg-white border border-border-default/80 shadow-md hover:shadow-lg active:scale-95 transition-all text-text-secondary hover:text-accent-indigo cursor-pointer flex items-center justify-center"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Pulse GPS Detection Overlay */}
-      {isLocating && (
-        <div className="absolute inset-0 bg-bg-primary/25 backdrop-blur-xs flex flex-col items-center justify-center z-20 animate-fade-in pointer-events-none">
-          <div className="w-16 h-16 rounded-full bg-accent-indigo/20 flex items-center justify-center animate-ping">
-            <Compass className="w-8 h-8 text-accent-indigo animate-spin" />
-          </div>
-          <span className="text-xs font-semibold text-text-secondary mt-4 bg-white/90 border border-border-default px-3 py-1.5 rounded-full shadow-sm">
-            Tuning Geolocation Radar...
-          </span>
-        </div>
-      )}
     </div>
   );
 };

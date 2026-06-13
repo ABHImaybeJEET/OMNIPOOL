@@ -258,3 +258,25 @@
     scrollbar-width: none;  /* Firefox */
   }
 }
+
+/* ===== Custom Leaflet Popup Overrides ===== */
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(140, 123, 158, 0.15) !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 10px 30px rgba(140, 123, 158, 0.08) !important;
+  padding: 2px !important;
+}
+
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 6px 10px !important;
+  line-height: inherit !important;
+}
+
+.custom-leaflet-popup .leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(140, 123, 158, 0.1) !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03) !important;
+}

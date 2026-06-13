@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   DashboardProvider,
   useDashboardContext,
 } from "../context/DashboardContext";
+import type { Mentor } from "../context/DashboardContext";
+import { createRequest } from "../api/client";
+import Modal from "../components/ui/Modal";
 import {
   Sparkles,
   Cpu,
@@ -137,6 +141,35 @@ const DashboardContent = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
     projectAdvice,
     submitPrompt,
   } = useDashboardContext();
+
+  const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+  const [isStartingChat, setIsStartingChat] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const navigate = useNavigate();
+
+  const handleStartChat = async (mentorId: string) => {
+    setIsStartingChat(true);
+    setChatError("");
+    try {
+      const { data } = await createRequest({ mentor_id: mentorId });
+      if (data.success) {
+        const reqId = data.data?.request?._id || data.data?._id;
+        if (reqId) {
+          setSelectedMentor(null);
+          navigate(`/chat?request_id=${reqId}`);
+        } else {
+          setChatError("Failed to resolve chat session ID.");
+        }
+      } else {
+        setChatError("Failed to initiate chat. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Chat initiation error:", err);
+      setChatError(err.response?.data?.error || "Error connecting to mentor chat.");
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -455,21 +488,27 @@ const DashboardContent = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
                     <ul className="space-y-3">
                       {matchedMentors?.length > 0 ? (
                         matchedMentors.map((mentor, idx) => (
-                          <li
-                            key={idx}
-                            className="flex items-center gap-3 bg-bg-secondary/60 p-3.5 rounded-xl border border-border-default/50"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-accent-indigo/10 flex items-center justify-center text-xs font-bold text-accent-indigo shrink-0 font-mono">
-                              {mentor.name.charAt(0)}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-sm font-medium text-text-primary truncate">
-                                {mentor.name}
-                              </span>
-                              <span className="text-xs text-text-muted truncate">
-                                {mentor.skills?.slice(0, 2).join(", ")}
-                              </span>
-                            </div>
+                          <li key={idx}>
+                            <button
+                              onClick={() => setSelectedMentor(mentor)}
+                              className="w-full text-left flex items-center gap-3 bg-bg-secondary/60 p-3.5 rounded-xl border border-border-default/50 hover:bg-bg-tertiary/70 hover:border-accent-rose/30 transition-all cursor-pointer group"
+                            >
+                              <div className="w-9 h-9 rounded-full bg-accent-indigo/10 flex items-center justify-center text-xs font-bold text-accent-indigo shrink-0 font-mono group-hover:bg-accent-indigo/20 transition-colors overflow-hidden">
+                                {mentor.avatar_url ? (
+                                  <img src={mentor.avatar_url} alt={mentor.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  mentor.name.charAt(0)
+                                )}
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-semibold text-text-primary truncate group-hover:text-accent-indigo transition-colors">
+                                  {mentor.name}
+                                </span>
+                                <span className="text-xs text-text-muted truncate mt-0.5">
+                                  {mentor.skills?.slice(0, 2).join(", ")}
+                                </span>
+                              </div>
+                            </button>
                           </li>
                         ))
                       ) : (
@@ -485,6 +524,110 @@ const DashboardContent = ({ onOpenSidebar }: { onOpenSidebar: () => void }) => {
           </div>
         )}
       </div>
+
+      {/* Mentor Profile Modal */}
+      <Modal
+        isOpen={!!selectedMentor}
+        onClose={() => {
+          setSelectedMentor(null);
+          setChatError("");
+        }}
+        title="Mentor Profile"
+        size="md"
+      >
+        {selectedMentor && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 border-b border-border-default/50 pb-5">
+              {selectedMentor.avatar_url ? (
+                <img
+                  src={selectedMentor.avatar_url}
+                  alt={selectedMentor.name}
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-accent-indigo/20 shadow-sm"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-indigo/10 to-accent-violet/10 border border-accent-indigo/20 flex items-center justify-center text-xl font-bold text-accent-indigo shadow-inner">
+                  {selectedMentor.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <h4 className="text-xl font-bold text-text-primary">{selectedMentor.name}</h4>
+                <p className="text-xs text-text-muted mt-0.5">{selectedMentor.email}</p>
+                {selectedMentor.location && (
+                  <p className="text-xs text-accent-indigo/80 font-medium mt-1">
+                    📍 {typeof selectedMentor.location === 'object' && selectedMentor.location.coordinates
+                      ? `Community Peer` 
+                      : selectedMentor.location}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-2">
+              <h5 className="text-xs font-bold uppercase tracking-wider text-text-muted">About Mentor</h5>
+              <p className="text-sm text-text-secondary leading-relaxed bg-bg-secondary/40 border border-border-default/40 rounded-xl p-3.5 whitespace-pre-wrap">
+                {selectedMentor.bio || "No biography provided. This mentor is available for community pooling and expert software consulting support."}
+              </p>
+            </div>
+
+            {/* Skills */}
+            <div className="space-y-2">
+              <h5 className="text-xs font-bold uppercase tracking-wider text-text-muted">Expertise & Skills</h5>
+              <div className="flex flex-wrap gap-2">
+                {selectedMentor.skills?.map((skill, idx) => (
+                  <span
+                    key={idx}
+                    className="text-xs font-semibold bg-accent-indigo/10 border border-accent-indigo/25 text-accent-indigo px-3 py-1.5 rounded-full"
+                  >
+                    {skill}
+                  </span>
+                ))}
+                {!selectedMentor.skills?.length && (
+                  <span className="text-xs text-text-muted italic">General Hardware & Software Engineering</span>
+                )}
+              </div>
+            </div>
+
+            {chatError && (
+              <div className="bg-accent-rose/10 border border-accent-rose/25 text-accent-rose text-xs p-3 rounded-xl">
+                {chatError}
+              </div>
+            )}
+
+            {/* Footer Actions */}
+            <div className="pt-4 border-t border-border-default/45 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedMentor(null);
+                  setChatError("");
+                }}
+                className="px-4 py-2 border border-border-default text-text-muted hover:text-text-primary rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isStartingChat}
+                onClick={() => handleStartChat(selectedMentor._id)}
+                className="px-5 py-2.5 bg-accent-indigo hover:bg-accent-violet text-white text-xs font-bold rounded-xl shadow-md shadow-accent-indigo/10 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isStartingChat ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    Chat with Mentor
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </main>
   );
 };

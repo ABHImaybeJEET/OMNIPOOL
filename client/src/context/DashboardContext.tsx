@@ -24,9 +24,14 @@ export interface HardwareItem {
 }
 
 export interface Mentor {
-  id: string;
+  _id: string;
+  id?: string;
   name: string;
   skills: string[];
+  bio?: string;
+  avatar_url?: string;
+  email?: string;
+  location?: any;
 }
 
 export interface AIResult {
