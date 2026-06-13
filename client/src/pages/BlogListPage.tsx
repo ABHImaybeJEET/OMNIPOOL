@@ -205,7 +205,7 @@ const BlogListPage: React.FC = () => {
               
               {/* Featured Post (Only visible if not searching or filtering by tag) */}
               {!searchQuery && !selectedTag && selectedCategory === "All" && featuredPost && (
-                <div className="glass-card overflow-hidden group hover:border-accent-indigo/30 transition-all duration-300">
+                <div className="glass-card overflow-hidden group hover:-translate-y-1 hover:border-accent-indigo/35 hover:shadow-glow-sm hover:shadow-accent-indigo/5 transition-all duration-300">
                   <Link to={`/blog/${featuredPost.slug}`} className="grid grid-cols-1 md:grid-cols-12 gap-6">
                     {/* Cover Image */}
                     <div className="md:col-span-7 h-64 md:h-96 relative bg-bg-tertiary overflow-hidden">
@@ -226,7 +226,7 @@ const BlogListPage: React.FC = () => {
                     </div>
 
                     {/* Meta & Info */}
-                    <div className="md:col-span-5 p-6 flex flex-col justify-between h-full">
+                    <div className="md:col-span-5 p-6 flex flex-col justify-between">
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs text-text-muted">
                           <span>{new Date(featuredPost.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
@@ -269,7 +269,7 @@ const BlogListPage: React.FC = () => {
               {/* Grid of Other Posts */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {(searchQuery || selectedTag || selectedCategory !== "All" ? posts : gridPosts).map((post) => (
-                  <div key={post._id} className="glass-card overflow-hidden flex flex-col h-full group hover:border-accent-indigo/30 transition-all duration-300">
+                  <div key={post._id} className="glass-card overflow-hidden flex flex-col h-full group hover:-translate-y-1.5 hover:border-accent-indigo/35 hover:shadow-glow-sm hover:shadow-accent-indigo/5 transition-all duration-300">
                     <Link to={`/blog/${post.slug}`} className="flex flex-col h-full">
                       {/* Image */}
                       <div className="h-48 relative bg-bg-tertiary overflow-hidden">

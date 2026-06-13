@@ -40,7 +40,20 @@ const BlogPostPage: React.FC = () => {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Track page scroll for progress indicator
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Like and Comments states
   const [isLiking, setIsLiking] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -259,6 +272,13 @@ const BlogPostPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-bg-primary pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+      {/* Reading Progress Indicator */}
+      <div className="fixed top-16 left-0 right-0 h-1 bg-border-default/15 z-50">
+        <div 
+          className="h-full bg-gradient-to-r from-accent-indigo to-accent-violet transition-all duration-75" 
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       <div className="max-w-3xl mx-auto">
         
         {/* Back Link */}
