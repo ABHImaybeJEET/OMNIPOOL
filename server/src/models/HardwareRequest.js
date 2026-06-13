@@ -4,7 +4,7 @@ const hardwareRequestSchema = new mongoose.Schema({
   hardware_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'HardwareItem',
-    required: [true, 'Hardware item is required'],
+    required: false,
   },
   requester_id: {
     type: mongoose.Schema.Types.ObjectId,

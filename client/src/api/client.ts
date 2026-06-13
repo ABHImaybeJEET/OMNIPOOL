@@ -177,9 +177,10 @@ export const updateProject = (id: string, data: Record<string, unknown>) =>
 
 // ===== Request Endpoints =====
 export const createRequest = (data: {
-  hardware_id: string;
-  quantity_requested: number;
+  hardware_id?: string;
+  quantity_requested?: number;
   message?: string;
+  mentor_id?: string;
 }) => api.post("/requests", data);
 
 export const getRequests = (params?: Record<string, string>) =>

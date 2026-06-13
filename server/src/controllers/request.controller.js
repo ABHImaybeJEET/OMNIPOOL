@@ -9,63 +9,135 @@ const { awardCompletionPoints } = require("../services/points.service");
  */
 const createRequest = async (req, res, next) => {
   try {
-    const { hardware_id, quantity_requested, message } = req.body;
+    const { hardware_id, quantity_requested, message, mentor_id } = req.body;
 
-    const hardware = await HardwareItem.findById(hardware_id);
-    if (!hardware) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Hardware not found" });
-    }
+    let request;
+    let ownerId;
+    let requestDetails;
 
-    if (String(hardware.owner_id) === String(req.userId)) {
-      return res.status(400).json({
-        success: false,
-        error: "You cannot request your own hardware",
+    if (mentor_id) {
+      // Mentor chat request
+      const User = require("../models/User");
+      const mentor = await User.findById(mentor_id);
+      if (!mentor) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Mentor not found" });
+      }
+
+      if (String(mentor._id) === String(req.userId)) {
+        return res.status(400).json({
+          success: false,
+          error: "You cannot request a chat with yourself",
+        });
+      }
+
+      // Check if there is already an existing chat request between this user and this mentor where hardware_id is null/undefined
+      const existingRequest = await HardwareRequest.findOne({
+        requester_id: req.userId,
+        owner_id: mentor_id,
+        hardware_id: { $exists: false },
+      });
+
+      if (existingRequest) {
+        const populated = await HardwareRequest.findById(existingRequest._id)
+          .populate("requester_id", "name email avatar_url")
+          .populate("owner_id", "name email avatar_url");
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            request: populated,
+            isExisting: true,
+          },
+        });
+      }
+
+      ownerId = mentor._id;
+      requestDetails = [
+        `Mentor Match Chat Session`,
+        `Mentor: ${mentor.name}`,
+        `Skills: ${mentor.skills?.join(", ") || "General"}`,
+        message ? `Initial message: ${message}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      request = await HardwareRequest.create({
+        requester_id: req.userId,
+        owner_id: ownerId,
+        quantity_requested: 1,
+        message: message || `Hi ${mentor.name}, I would love to connect for mentoring.`,
+        status: "accepted", // Auto-accepted for instant chatting!
+      });
+
+    } else {
+      // Normal hardware request
+      if (!hardware_id) {
+        return res.status(400).json({
+          success: false,
+          error: "hardware_id or mentor_id is required",
+        });
+      }
+
+      const hardware = await HardwareItem.findById(hardware_id);
+      if (!hardware) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Hardware not found" });
+      }
+
+      if (String(hardware.owner_id) === String(req.userId)) {
+        return res.status(400).json({
+          success: false,
+          error: "You cannot request your own hardware",
+        });
+      }
+
+      if (quantity_requested < 1 || quantity_requested > hardware.quantity) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid quantity requested" });
+      }
+
+      const existingPending = await HardwareRequest.findOne({
+        hardware_id,
+        requester_id: req.userId,
+        status: "pending",
+      });
+
+      if (existingPending) {
+        return res.status(400).json({
+          success: false,
+          error: "You already have a pending request for this item",
+        });
+      }
+
+      ownerId = hardware.owner_id;
+      requestDetails = [
+        `New hardware request`,
+        `Item: ${hardware.name}`,
+        `Quantity: ${quantity_requested || 1}`,
+        `Status: Pending approval`,
+        message ? `Message: ${message}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      request = await HardwareRequest.create({
+        hardware_id,
+        requester_id: req.userId,
+        owner_id: ownerId,
+        quantity_requested: quantity_requested || 1,
+        message: message || "",
       });
     }
 
-    if (quantity_requested < 1 || quantity_requested > hardware.quantity) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Invalid quantity requested" });
-    }
-
-    const existingPending = await HardwareRequest.findOne({
-      hardware_id,
-      requester_id: req.userId,
-      status: "pending",
-    });
-
-    if (existingPending) {
-      return res.status(400).json({
-        success: false,
-        error: "You already have a pending request for this item",
-      });
-    }
-
-    const request = await HardwareRequest.create({
-      hardware_id,
-      requester_id: req.userId,
-      owner_id: hardware.owner_id,
-      quantity_requested: quantity_requested || 1,
-      message: message || "",
-    });
-
-    const requestDetails = [
-      `New hardware request`,
-      `Item: ${hardware.name}`,
-      `Quantity: ${quantity_requested || 1}`,
-      `Status: Pending approval`,
-      message ? `Message: ${message}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
+    // Common chat message & notification logic
     const initialChatMessage = await ChatMessage.create({
       request_id: request._id,
       sender_id: req.userId,
-      receiver_id: hardware.owner_id,
+      receiver_id: ownerId,
       message: requestDetails,
     });
 
@@ -83,11 +155,11 @@ const createRequest = async (req, res, next) => {
     // Emit socket event if io is available
     if (req.app.get("io")) {
       const io = req.app.get("io");
-      io.to(`user_${hardware.owner_id}`).emit("new_request", populated);
+      io.to(`user_${ownerId}`).emit("new_request", populated);
       io.to(`user_${req.userId}`).emit("new_request", populated);
       io.to(`chat_${request._id}`).emit("new_request", populated);
       io.to(`chat_${request._id}`).emit("new_message", populatedInitialMessage);
-      io.to(`user_${hardware.owner_id}`).emit("message_notification", {
+      io.to(`user_${ownerId}`).emit("message_notification", {
         request_id: request._id,
         sender: populatedInitialMessage.sender_id,
         preview: requestDetails.split("\n")[0],
