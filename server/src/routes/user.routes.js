@@ -13,11 +13,13 @@ const {
   updateEnterpriseStatus,
   getLeaderboard,
   getMyRank,
+  checkEmail,
 } = require("../controllers/user.controller");
 const auth = require("../middleware/auth");
 
 router.route("/").get(getUsers).post(createUser);
 
+router.post("/check-email", checkEmail);
 router.post("/login", loginUser);
 router.post("/google", googleAuth);
 router.post("/sync", syncUser);

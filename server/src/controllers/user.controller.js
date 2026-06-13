@@ -571,6 +571,23 @@ const getMyRank = async (req, res, next) => {
   }
 };
 
+/**
+ * POST /api/users/check-email
+ * Check if an email is already registered
+ */
+const checkEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email is required" });
+    }
+    const user = await User.findOne({ email: email.toLowerCase() });
+    res.json({ success: true, exists: !!user });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
@@ -584,4 +601,6 @@ module.exports = {
   updateEnterpriseStatus,
   getLeaderboard,
   getMyRank,
+  checkEmail,
 };
+
