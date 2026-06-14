@@ -25,7 +25,6 @@ const SignUpPage: React.FC = () => {
   const [enteredOtp, setEnteredOtp] = useState("");
   const [timer, setTimer] = useState(0);
   const [otpError, setOtpError] = useState("");
-  const [devModeOtp, setDevModeOtp] = useState<string | null>(null);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -53,12 +52,10 @@ const SignUpPage: React.FC = () => {
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
     if (!serviceId || !templateId || !publicKey) {
-      console.warn(
-        "EmailJS environment variables (VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY) are not configured. Falling back to console logging OTP for testing."
+      console.error(
+        "EmailJS environment variables (VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY) are not configured."
       );
-      setDevModeOtp(otp);
-      setTimer(60);
-      setIsOtpSent(true);
+      setError("Email verification service is currently unconfigured. Please sign up using Google Auth or contact support.");
       return;
     }
 
@@ -77,7 +74,6 @@ const SignUpPage: React.FC = () => {
           publicKey: publicKey,
         }
       );
-      setDevModeOtp(null);
       setTimer(60);
       setIsOtpSent(true);
     } catch (err: any) {
@@ -144,7 +140,6 @@ const SignUpPage: React.FC = () => {
     setIsOtpSent(false);
     setEnteredOtp("");
     setGeneratedOtp("");
-    setDevModeOtp(null);
     setOtpError("");
   };
 
@@ -278,14 +273,6 @@ const SignUpPage: React.FC = () => {
                 {email}
               </p>
             </div>
-
-            {devModeOtp && (
-              <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 rounded-xl p-3 text-xs text-center space-y-1">
-                <span className="font-semibold block uppercase tracking-wider text-[10px]">Developer Sandbox Mode</span>
-                EmailJS credentials are not configured. Use the code below:
-                <span className="block font-mono text-lg font-bold tracking-widest select-all mt-1 bg-bg-secondary py-1 rounded border border-border-default/80">{devModeOtp}</span>
-              </div>
-            )}
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-text-muted block text-center">

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { HardwareItem } from "../../store/useStore";
-import { Search, MapPin, Compass, ChevronRight, ChevronLeft, Layers } from "lucide-react";
+import { Search, MapPin, Compass, ChevronRight, ChevronLeft, Layers, ChevronUp, ChevronDown } from "lucide-react";
 
 declare const L: any;
 
@@ -154,6 +154,13 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
   const [nearbyDistance, setNearbyDistance] = useState(3000); // Default Global (3000)
   const [isLocating, setIsLocating] = useState(false);
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Store requests handlers callbacks in global to let Leaflet popups access them
   useEffect(() => {
@@ -507,15 +514,7 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
           <Compass className={`w-5 h-5 ${isLocating ? "animate-spin" : ""}`} />
         </button>
 
-        {/* Slideout mini map icon button if closed */}
-        {!isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="absolute top-6 right-6 z-10 p-3 rounded-2xl bg-white border border-border-default/80 shadow-md hover:shadow-lg active:scale-95 transition-all text-text-secondary hover:text-accent-indigo cursor-pointer flex items-center justify-center"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        )}
+
 
         {/* Pulse GPS Detection Overlay */}
         {isLocating && (
@@ -538,13 +537,7 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
             : "w-full h-0 overflow-hidden md:h-full md:w-0 md:absolute md:top-0 md:right-0 md:border-l-0"
         }`}
       >
-        {/* Toggle button */}
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute top-4 right-4 md:top-[48%] md:-left-8 md:right-auto p-1.5 rounded-xl md:rounded-l-xl md:rounded-r-none bg-white border border-border-default/60 md:border-r-0 shadow-md text-text-muted hover:text-accent-indigo transition-colors cursor-pointer flex items-center justify-center z-20"
-        >
-          {isSidebarOpen ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-        </button>
+
 
         {isSidebarOpen && (
           <div className="p-5 flex-1 flex flex-col min-h-0">
@@ -670,6 +663,24 @@ const HardwareMap: React.FC<HardwareMapProps> = ({
           </div>
         )}
       </div>
+
+      {/* Unified Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        className={`absolute z-20 w-8 h-8 rounded-full border border-border-default/60 bg-white shadow-glow-sm hover:shadow-glow-md flex items-center justify-center text-text-secondary hover:text-accent-indigo active:scale-95 transition-all duration-300 cursor-pointer
+          ${isSidebarOpen
+            ? "bottom-[334px] right-4 md:bottom-auto md:top-[48%] md:right-[324px]"
+            : "bottom-4 right-4 md:bottom-auto md:top-[48%] md:right-4"
+          }
+        `}
+      >
+        {isMobile ? (
+          isSidebarOpen ? <ChevronDown className="w-4.5 h-4.5" /> : <ChevronUp className="w-4.5 h-4.5" />
+        ) : (
+          isSidebarOpen ? <ChevronRight className="w-4.5 h-4.5" /> : <ChevronLeft className="w-4.5 h-4.5" />
+        )}
+      </button>
     </div>
   );
 };
